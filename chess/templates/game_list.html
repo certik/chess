@@ -32,6 +32,7 @@
     <li>
     <a href="{% url chess.views.show_pgn_file key=pgn.key %}">{{ pgn.filename }}</a>:
     <em>content</em>:{{ pgn.filecontent }}
+    <a href="{% url chess.views.delete_pgn_file key=pgn.key %}">Delete</a>
     </li>
   {% endfor %}
 </ul>

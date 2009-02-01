@@ -1,0 +1,15 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Delete PGN file{% endblock %}
+
+{% block chess_content %}
+<h1>Delete PGN file</h1>
+
+<p>
+Do you really want to delete {{ object.filename }}?
+
+<form action="" method="post">
+  <input type="submit" name="delete" value="Delete">
+</form>
+</p>
+
+{% endblock %}
