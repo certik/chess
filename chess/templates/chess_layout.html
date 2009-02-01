@@ -1,4 +1,10 @@
 {% extends 'layout.html' %}
-{% block menu %}
-<a href="{% url chess.views.list_games %}">Game listing</a>
+{% block content %}
+<div id="menu" class="menu">
+    {% block menu %}
+    <a href="{% url chess.views.list_games %}">Game listing</a>
+    {% endblock %}
+</div>
+{% block chess_content %}
+{% endblock %}
 {% endblock %}
