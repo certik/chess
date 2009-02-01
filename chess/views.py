@@ -4,8 +4,10 @@ from django.views.generic.list_detail import object_list, object_detail
 from django.views.generic.create_update import create_object, delete_object, \
     update_object
 #from django.shortcuts import render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, loader
+from django import forms
+
 from chess.models import Game, PGNFile
 from ragendja.template import render_to_response, render_to_string
 
@@ -37,8 +39,18 @@ def delete_game(request, key):
     return delete_object(request, Game, object_id=key,
         post_delete_redirect=reverse('chess.views.list_games'))
 
+class UploadFileForm(forms.Form):
+    #title = forms.CharField(max_length=50)
+    file = forms.FileField()
+
 def upload_pgn(request):
-    return create_object(request, PGNFile)
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse("chess.views.list_games"))
+    else:
+        form = UploadFileForm()
+    return render_to_response("pgnfile_form.html", {"form": form})
 
 def show_pgn_file(request, key):
     return object_detail(request, PGNFile.all(), key)
