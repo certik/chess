@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.webdesign',
     'appenginepatcher',
     'myapp',
+    'chess',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

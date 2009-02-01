@@ -5,4 +5,5 @@ urlpatterns = patterns('',
     (r'^$', 'django.views.generic.simple.direct_to_template',
         {'template': 'main.html'}),
     (r'^person/', include('myapp.urls')),
+    (r'^chess/', include('chess.urls')),
 )
