@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.generic.create_update import create_object, delete_object, \
     update_object
-from chess.models import Person
+from chess.models import Person, Game
 from ragendja.template import render_to_response, render_to_string
 
 def list_people(request):
@@ -12,8 +12,8 @@ def list_people(request):
 def show_person(request, key):
     return object_detail(request, Person.all(), key)
 
-def add_person(request):
-    return create_object(request, Person)
+def create_game(request):
+    return create_object(request, Game)
 
 def edit_person(request, key):
     return update_object(request, Person, key)

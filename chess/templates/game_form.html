@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block title %}Create person{% endblock %}
+
+{% block content %}
+<h1>Create person</h1>
+<a href="{% url myapp.views.list_people %}">Back to listing</a>
+
+<form action="" method="post">
+  {{ form.as_p }}
+  {% if object %}
+    <input type="submit" name="edit" value="Edit">
+  {% else %}
+    <input type="submit" name="create" value="Create">
+  {% endif %}
+</form>
+
+{% endblock %}

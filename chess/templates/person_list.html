@@ -2,8 +2,8 @@
 {% block title %}Person listing{% endblock %}
 
 {% block content %}
-<h1>Person listing</h1>
-<a href="{% url myapp.views.add_person %}">Create person</a>
+<h1>Games list</h1>
+<a href="{% url chess.views.create_game %}">Create game</a>
 
 <ul>
   {% for person in object_list %}
