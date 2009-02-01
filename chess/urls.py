@@ -2,9 +2,9 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('chess.views',
-    (r'^$', 'list_people'),
+    (r'^$', 'list_games'),
     (r'^create/$', 'create_game'),
-    (r'^show/(?P<key>.+)$', 'show_person'),
-    (r'^edit/(?P<key>.+)$', 'edit_person'),
-    (r'^delete/(?P<key>.+)$', 'delete_person'),
+    (r'^show/(?P<key>.+)$', 'show_game'),
+    (r'^edit/(?P<key>.+)$', 'edit_game'),
+    (r'^delete/(?P<key>.+)$', 'delete_game'),
 )

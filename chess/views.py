@@ -6,18 +6,21 @@ from django.views.generic.create_update import create_object, delete_object, \
 from chess.models import Person, Game
 from ragendja.template import render_to_response, render_to_string
 
-def list_people(request):
-    return object_list(request, Person.all(), paginate_by=10)
+def list_games(request):
+    return object_list(request, Game.all(), paginate_by=10)
 
 def show_person(request, key):
     return object_detail(request, Person.all(), key)
 
+def show_game(request, key):
+    return object_detail(request, Game.all(), key)
+
 def create_game(request):
     return create_object(request, Game)
 
-def edit_person(request, key):
-    return update_object(request, Person, key)
+def edit_game(request, key):
+    return update_object(request, Game, key)
 
-def delete_person(request, key):
-    return delete_object(request, Person, object_id=key,
-        post_delete_redirect=reverse('myapp.views.list_people'))
+def delete_game(request, key):
+    return delete_object(request, Game, object_id=key,
+        post_delete_redirect=reverse('chess.views.list_games'))

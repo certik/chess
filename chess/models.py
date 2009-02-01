@@ -13,6 +13,10 @@ class Person(db.Model):
 
 class Game(db.Model):
     """Basic user profile with personal details."""
-    white_player = db.StringProperty(required=True)
-    black_player = db.StringProperty(required=True)
-    moves = db.StringProperty(required=True)
+    white_player = db.StringProperty(required=False)
+    black_player = db.StringProperty(required=False)
+    moves = db.StringProperty(required=False)
+
+    @permalink
+    def get_absolute_url(self):
+        return ('chess.views.show_game', (), {'key': self.key()})
