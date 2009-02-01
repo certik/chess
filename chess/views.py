@@ -21,6 +21,11 @@ def render_to_response(tempname, dictionary):
     r = HttpResponse(t.render(c), mimetype="application/xhtml+xml")
     return r
 
+def BREAKPOINT():
+    import pdb, sys
+    p = pdb.Pdb(None, sys.__stdin__, sys.__stdout__)
+    p.set_trace()
+
 def list_games(request):
     return render_to_response("game_list.html",
             {"games": Game.all(), "pgn_files": PGNFile.all()})
@@ -47,6 +52,9 @@ def upload_pgn(request):
     if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            f = request.FILES['file']
+            p = PGNFile(filename=f.name, filecontent=f.read())
+            p.put()
             return HttpResponseRedirect(reverse("chess.views.list_games"))
     else:
         form = UploadFileForm()
