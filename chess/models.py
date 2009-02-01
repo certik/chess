@@ -14,10 +14,9 @@ class Game(db.Model):
 
 class PGNFile(db.Model):
     """PGN file."""
-    white_player = db.StringProperty(required=False)
-    black_player = db.StringProperty(required=False)
-    moves = db.StringProperty(required=False)
+    filename = db.StringProperty(required=False)
+    filecontent = db.BlobProperty()
 
     @permalink
     def get_absolute_url(self):
-        return ('chess.views.show_game', (), {'key': self.key()})
+        return ('chess.views.show_pgn_file', (), {'key': self.key()})

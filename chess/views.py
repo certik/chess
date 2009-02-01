@@ -24,3 +24,10 @@ def delete_game(request, key):
 
 def upload_pgn(request):
     return create_object(request, PGNFile)
+
+def show_pgn_file(request, key):
+    return object_detail(request, PGNFile.all(), key)
+
+def delete_pgn_file(request, key):
+    return delete_object(request, PGNFile, object_id=key,
+        post_delete_redirect=reverse('chess.views.list_games'))

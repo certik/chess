@@ -1,0 +1,12 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Game details{% endblock %}
+
+{% block chess_content %}
+<h1>PGN file detail</h1>
+<a href="{% url chess.views.delete_pgn_file key=object.key %}">Delete</a>
+
+<ul>
+  <li>Filename: {{ object.filename }}</li>
+  <li>Content: {{ object.filecontent }}</li>
+</ul>
+{% endblock %}
