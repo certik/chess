@@ -3,11 +3,26 @@ from django.core.urlresolvers import reverse
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.generic.create_update import create_object, delete_object, \
     update_object
+#from django.shortcuts import render_to_response
+from django.http import HttpResponse
+from django.template import Context, loader
 from chess.models import Game, PGNFile
 from ragendja.template import render_to_response, render_to_string
 
+def render_to_response(tempname, dictionary):
+    """
+    For some reason the django.shortcuts.render_to_response() is not working
+    properly.
+    """
+    t = loader.get_template(tempname)
+    c = Context(dictionary)
+    r = HttpResponse(t.render(c), mimetype="application/xhtml+xml")
+    return r
+
 def list_games(request):
-    return object_list(request, Game.all(), paginate_by=10)
+    return render_to_response("game_list.html",
+            {"games": Game.all(), "pgn_files": PGNFile.all()})
+    #return object_list(request, Game.all(), paginate_by=10)
 
 def show_game(request, key):
     return object_detail(request, Game.all(), key)

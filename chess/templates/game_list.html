@@ -6,7 +6,7 @@
 <a href="{% url chess.views.create_game %}">Create game</a>
 
 <ul>
-  {% for game in object_list %}
+  {% for game in games %}
     <li>
       <a href="{% url chess.views.show_game key=game.key %}">{{ game.white_player }} {{ game.black_player }} {{ game.moves }}</a>
       <a href="{% url chess.views.edit_game key=game.key %}">Edit</a>
@@ -23,4 +23,17 @@
     <a href="{% url myapp.views.list_people %}?page={{ next }}">next-&gt;</a>
   {% endif %}
 </div>
+
+<h1>PGN files list</h1>
+
+<a href="{% url chess.views.upload_pgn %}">Upload PGN</a>
+<ul>
+  {% for pgn in pgn_files %}
+    <li>
+    <a href="{% url chess.views.show_pgn_file key=pgn.key %}">{{ pgn.filename }}</a>:
+    <em>content</em>:{{ pgn.filecontent }}
+    </li>
+  {% endfor %}
+</ul>
+
 {% endblock %}
