@@ -4,13 +4,11 @@
 {% block chess_content %}
 <h1>Create a new game</h1>
 
-<form action="" method="post">
-  {{ form.as_p }}
-  {% if object %}
-    <input type="submit" name="edit" value="Edit">
-  {% else %}
-    <input type="submit" name="create" value="Create">
-  {% endif %}
+<form action="{% url chess.views.create_game %}" method="post">
+  White: {{ form.white_player }}<br/>
+  Black: {{ form.black_player }}<br/>
+  Moves: {{ form.moves }}<br/>
+  <input type="submit" name="create" value="Create"/>
 </form>
 
 {% endblock %}

@@ -7,7 +7,7 @@ class Game(db.Model):
     white_player = db.StringProperty(required=False)
     black_player = db.StringProperty(required=False)
     moves = db.StringProperty(required=False)
-    owner = db.UserProperty(required=True)
+    owner = db.UserProperty()
 
     @permalink
     def get_absolute_url(self):
@@ -17,7 +17,7 @@ class PGNFile(db.Model):
     """PGN file."""
     filename = db.StringProperty(required=False)
     filecontent = db.BlobProperty()
-    owner = db.UserProperty(required=True)
+    owner = db.UserProperty()
 
     @permalink
     def get_absolute_url(self):

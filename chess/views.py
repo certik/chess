@@ -55,9 +55,25 @@ def list_games(request):
 def show_game(request, key):
     return object_detail(request, Game.all(), key)
 
+class CreateGameForm(forms.Form):
+    white_player = forms.CharField(max_length=50)
+    black_player = forms.CharField(max_length=50)
+    moves = forms.CharField(max_length=50)
+
 @login_required
 def create_game(request):
-    return create_object(request, Game)
+    if request.method == "POST":
+        form = CreateGameForm(request.POST, request.FILES)
+        if form.is_valid():
+            p = Game(white_player=form.cleaned_data["white_player"],
+                    black_player=form.cleaned_data["black_player"],
+                    moves=form.cleaned_data["moves"],
+                    owner=users.get_current_user())
+            p.put()
+            return HttpResponseRedirect(reverse("chess.views.list_games"))
+    else:
+        form = CreateGameForm()
+    return render_to_response("game_form.html", {"form": form})
 
 @login_required
 def edit_game(request, key):
