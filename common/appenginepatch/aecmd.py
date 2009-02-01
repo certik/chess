@@ -30,6 +30,7 @@ def setup_env(manage_py_env=False):
             if os.path.exists(sdk_path):
                 SDK_PATH = sdk_path
                 break
+        SDK_PATH = "/home/ondra/repos/google_appengine"
         if SDK_PATH is None:
             # The SDK could not be found in any known location.
             sys.stderr.write("The Google App Engine SDK could not be found!\n")
