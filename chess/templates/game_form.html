@@ -5,8 +5,11 @@
 <h1>Create a new game</h1>
 
 <form action="{% url chess.views.create_game %}" method="post">
+  {{ form.white_player.errors }}
   White: {{ form.white_player }}<br/>
+  {{ form.black_player.errors }}
   Black: {{ form.black_player }}<br/>
+  {{ form.moves.errors }}
   Moves: {{ form.moves }}<br/>
   <input type="submit" name="create" value="Create"/>
 </form>
