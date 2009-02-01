@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block title %}Person details{% endblock %}
+
+{% block content %}
+<h1>Person details</h1>
+<a href="{% url myapp.views.list_people %}">Back to listing</a>
+<a href="{% url myapp.views.edit_person key=object.key %}">Edit</a>
+<a href="{% url myapp.views.delete_person key=object.key %}">Delete</a>
+
+<ul>
+  <li>First name: {{ object.first_name }}</li>
+  <li>Last name: {{ object.last_name }}</li>
+</ul>
+{% endblock %}
