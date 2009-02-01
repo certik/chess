@@ -11,6 +11,8 @@ from django import forms
 from chess.models import Game, PGNFile
 from ragendja.template import render_to_response, render_to_string
 
+from google.appengine.api import users
+
 def render_to_response(tempname, dictionary):
     """
     For some reason the django.shortcuts.render_to_response() is not working
@@ -26,9 +28,21 @@ def BREAKPOINT():
     p = pdb.Pdb(None, sys.__stdin__, sys.__stdout__)
     p.set_trace()
 
+def login_required(func):
+    """Decorator that redirects to the login page if you're not logged in."""
+    def login_wrapper(request, *args, **kwds):
+        if users.get_current_user() is None:
+            return HttpResponseRedirect(users.create_login_url(request.path))
+        return func(request, *args, **kwds)
+    return login_wrapper
+
+
+@login_required
 def list_games(request):
+    nick = users.get_current_user().nickname()
     return render_to_response("game_list.html",
-            {"games": Game.all(), "pgn_files": PGNFile.all()})
+            {"games": Game.all(), "pgn_files": PGNFile.all(),
+                 "login": nick})
     #return object_list(request, Game.all(), paginate_by=10)
 
 def show_game(request, key):
@@ -66,3 +80,6 @@ def show_pgn_file(request, key):
 def delete_pgn_file(request, key):
     return delete_object(request, PGNFile, object_id=key,
         post_delete_redirect=reverse('chess.views.list_games'))
+
+def logout(request):
+    return HttpResponseRedirect(users.create_logout_url("/"))

@@ -3,6 +3,7 @@
 <div id="menu" class="menu">
     {% block menu %}
     <a href="{% url chess.views.list_games %}">Main</a> |
+    {{ login }} | <a href="{% url chess.views.logout %}">Sign out</a>
     {% endblock %}
 </div>
 {% block chess_content %}
