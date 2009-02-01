@@ -1,9 +1,8 @@
-{% extends 'layout.html' %}
-{% block title %}Create person{% endblock %}
+{% extends 'chess_layout.html' %}
+{% block title %}Create game{% endblock %}
 
 {% block content %}
-<h1>Create person</h1>
-<a href="{% url chess.views.list_games %}">Back to listing</a>
+<h1>Create a new game</h1>
 
 <form action="" method="post">
   {{ form.as_p }}
