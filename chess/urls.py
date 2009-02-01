@@ -7,4 +7,5 @@ urlpatterns = patterns('chess.views',
     (r'^show/(?P<key>.+)$', 'show_game'),
     (r'^edit/(?P<key>.+)$', 'edit_game'),
     (r'^delete/(?P<key>.+)$', 'delete_game'),
+    (r'^upload/$', 'upload_pgn'),
 )

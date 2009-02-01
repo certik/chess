@@ -11,3 +11,13 @@ class Game(db.Model):
     @permalink
     def get_absolute_url(self):
         return ('chess.views.show_game', (), {'key': self.key()})
+
+class PGNFile(db.Model):
+    """PGN file."""
+    white_player = db.StringProperty(required=False)
+    black_player = db.StringProperty(required=False)
+    moves = db.StringProperty(required=False)
+
+    @permalink
+    def get_absolute_url(self):
+        return ('chess.views.show_game', (), {'key': self.key()})

@@ -1,0 +1,14 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Game details{% endblock %}
+
+{% block chess_content %}
+<h1>Game details</h1>
+<a href="{% url chess.views.edit_game key=object.key %}">Edit</a>
+<a href="{% url chess.views.delete_game key=object.key %}">Delete</a>
+
+<ul>
+  <li>White player: {{ object.white_player }}</li>
+  <li>Black player: {{ object.black_player }}</li>
+  <li>Moves: {{ object.moves }}</li>
+</ul>
+{% endblock %}

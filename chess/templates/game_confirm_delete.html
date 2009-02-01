@@ -1,0 +1,16 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Delete game{% endblock %}
+
+{% block chess_content %}
+<h1>Delete game</h1>
+<a href="{% url chess.views.show_game key=object.key %}">Back to game</a>
+
+<p>
+Do you really want to delete {{ object.white_player }} {{ object.black_player }}?
+
+<form action="" method="post">
+  <input type="submit" name="delete" value="Delete">
+</form>
+</p>
+
+{% endblock %}

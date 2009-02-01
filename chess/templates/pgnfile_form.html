@@ -1,0 +1,16 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Upload PGN file{% endblock %}
+
+{% block chess_content %}
+<h1>Upload a PGN file</h1>
+
+<form action="" method="post">
+  {{ form.as_p }}
+  {% if object %}
+    <input type="submit" name="edit" value="Edit">
+  {% else %}
+    <input type="submit" name="create" value="Create">
+  {% endif %}
+</form>
+
+{% endblock %}
