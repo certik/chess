@@ -120,6 +120,12 @@ def update_moves(request, key):
     if request.method == "POST":
         form = UpdateMovesForm(request.POST)
         if form.is_valid():
+            g = Game.get(key)
+            pgnfile = db.Query(PGNFile).filter("filename",
+                    form.cleaned_data["pgnfile"])[0]
+            g.moves = pgnfile.filecontent
+            g.put()
+
             return HttpResponseRedirect(reverse("chess.views.list_games"))
     else:
         form = UpdateMovesForm()
