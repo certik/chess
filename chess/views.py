@@ -111,3 +111,17 @@ def delete_pgn_file(request, key):
 
 def logout(request):
     return HttpResponseRedirect(users.create_logout_url("/"))
+
+class UpdateMovesForm(forms.Form):
+    pgnfile = forms.CharField(max_length=50)
+
+@login_required
+def update_moves(request, key):
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse("chess.views.list_games"))
+    else:
+        form = UpdateMovesForm()
+    return render_to_response("updatemoves_form.html", {"form": form,
+        "game": Game.get(key)})

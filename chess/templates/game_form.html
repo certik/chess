@@ -9,7 +9,11 @@
   White: {{ form.white_player }}<br/>
   {{ form.black_player.errors }}
   Black: {{ form.black_player }}<br/>
-  <input type="submit" name="create" value="Create"/>
+  {% if object %}
+    <input type="submit" name="edit" value="Edit">
+  {% else %}
+    <input type="submit" name="create" value="Create"/>
+  {% endif %}
 </form>
 
 {% endblock %}

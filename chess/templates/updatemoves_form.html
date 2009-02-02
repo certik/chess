@@ -1,0 +1,13 @@
+{% extends 'chess_layout.html' %}
+{% block title %}Update moves{% endblock %}
+
+{% block chess_content %}
+<h1>Update moves</h1>
+
+White: {{ game.white_player }}
+<form action="{% url chess.views.update_moves key=game.key %}" method="post">
+  {{ form.as_p }}
+  <input type="submit" name="create" value="Update"/>
+</form>
+
+{% endblock %}

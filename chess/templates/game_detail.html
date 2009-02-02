@@ -3,12 +3,16 @@
 
 {% block chess_content %}
 <h1>Game details</h1>
-<a href="{% url chess.views.edit_game key=object.key %}">Edit</a>
-<a href="{% url chess.views.delete_game key=object.key %}">Delete</a>
 
 <ul>
   <li>White player: {{ object.white_player }}</li>
   <li>Black player: {{ object.black_player }}</li>
-  <li>Moves: {{ object.moves }}</li>
 </ul>
+Moves (<a href="{% url chess.views.update_moves key=object.key%}">update</a>):<br/>
+{{ object.moves }}
+<p/>
+{% comment %}
+<a href="{% url chess.views.edit_game key=object.key %}">Edit</a> |
+{% endcomment %}
+<a href="{% url chess.views.delete_game key=object.key %}">Delete</a>
 {% endblock %}

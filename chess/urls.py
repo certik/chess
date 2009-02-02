@@ -10,5 +10,6 @@ urlpatterns = patterns('chess.views',
     (r'^upload/$', 'upload_pgn'),
     (r'^showpgn/(?P<key>.+)$', 'show_pgn_file'),
     (r'^deletepgn/(?P<key>.+)$', 'delete_pgn_file'),
+    (r'^updatemoves/(?P<key>.+)$', 'update_moves'),
     (r'^logout/$', 'logout'),
 )
