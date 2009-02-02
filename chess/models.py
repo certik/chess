@@ -4,9 +4,9 @@ from google.appengine.ext import db
 
 class Game(db.Model):
     """Some particular chess game."""
-    white_player = db.StringProperty(required=False)
-    black_player = db.StringProperty(required=False)
-    moves = db.StringProperty(required=False)
+    white_player = db.StringProperty()
+    black_player = db.StringProperty()
+    moves = db.StringProperty()
     owner = db.UserProperty()
 
     @permalink
@@ -15,7 +15,7 @@ class Game(db.Model):
 
 class PGNFile(db.Model):
     """PGN file."""
-    filename = db.StringProperty(required=False)
+    filename = db.StringProperty()
     filecontent = db.BlobProperty()
     owner = db.UserProperty()
 

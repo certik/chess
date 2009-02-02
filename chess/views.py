@@ -58,7 +58,6 @@ def show_game(request, key):
 class CreateGameForm(forms.Form):
     white_player = forms.CharField(max_length=50)
     black_player = forms.CharField(max_length=50)
-    moves = forms.CharField(max_length=50)
 
 @login_required
 def create_game(request):
@@ -67,7 +66,6 @@ def create_game(request):
         if form.is_valid():
             p = Game(white_player=form.cleaned_data["white_player"],
                     black_player=form.cleaned_data["black_player"],
-                    moves=form.cleaned_data["moves"],
                     owner=users.get_current_user())
             p.put()
             return HttpResponseRedirect(reverse("chess.views.list_games"))

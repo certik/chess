@@ -3,14 +3,12 @@
 
 {% block chess_content %}
 <h1>Games list</h1>
-<a href="{% url chess.views.create_game %}">Create game</a>
+<a href="{% url chess.views.create_game %}">New game</a>
 
 <ul>
   {% for game in games %}
     <li>
-      <a href="{% url chess.views.show_game key=game.key %}">{{ game.white_player }} {{ game.black_player }} {{ game.moves }}</a>
-      <a href="{% url chess.views.edit_game key=game.key %}">Edit</a>
-      <a href="{% url chess.views.delete_game key=game.key %}">Delete</a>
+      <a href="{% url chess.views.show_game key=game.key %}">{{ game.white_player }} - {{ game.black_player }}</a>
     </li>
   {% endfor %}
 </ul>
