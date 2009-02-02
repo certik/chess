@@ -118,7 +118,7 @@ class UpdateMovesForm(forms.Form):
 @login_required
 def update_moves(request, key):
     if request.method == "POST":
-        form = UploadFileForm(request.POST, request.FILES)
+        form = UpdateMovesForm(request.POST)
         if form.is_valid():
             return HttpResponseRedirect(reverse("chess.views.list_games"))
     else:
