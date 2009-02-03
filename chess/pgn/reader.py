@@ -1,3 +1,7 @@
+"""
+Chess PGN file reader.
+"""
+
 from grammar import parse_pgn
 import pyparsing
 
