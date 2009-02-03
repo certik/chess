@@ -11,13 +11,14 @@
 #
 from pyparsing import (alphanums, nums, quotedString, Combine, Forward, Group,
         Literal, oneOf, OneOrMore, Optional, Suppress, ZeroOrMore, White, Word,
-        SkipTo, ParseException)
+        SkipTo, ParseException, removeQuotes)
 
 #
 # define pgn grammar
 #
 
-tag1 = Suppress("[") + Word(alphanums) + Combine(quotedString) + Suppress("]")
+tag1 = Suppress("[") + Word(alphanums) + \
+        Combine(quotedString.setParseAction(removeQuotes)) + Suppress("]")
 tag2 = ";" + SkipTo("\n")
 tag = Group(tag1) | Suppress(tag2)
 comment = Suppress("{") + Word(alphanums + " ") + Suppress("}")
