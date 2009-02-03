@@ -2,10 +2,19 @@
 {% block title %}Main page{% endblock %}
 
 {% block content %}
+<h1>Chess Games</h1>
+This application allows you to handle your chess PGN files online. If you play
+a correspondence chess, you no longer need to fiddle with PGN files, you can
+handle everything online from any computer.
 <p>
 <ul>
-<li><a href="{% url chess.views.list_games %}">my chess games</a>
-<li><a href="{% url myapp.views.list_people %}">a simple person list</a>
+<li><a href="{% url chess.views.list_games %}">my chess games</a> (requires
+google login)
 </ul>
 </p>
+<br/>
+<br/>
+<br/>
+This application is opensource, you can download it from:
+<a href="http://github.com/certik/chess">http://github.com/certik/chess</a>.
 {% endblock %}
