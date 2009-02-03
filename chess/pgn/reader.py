@@ -11,7 +11,7 @@ class PGNReader(object):
         d = self.import_pgn(text)
         self._moves = d["moves"]
         self._header = d["header"]
-        self._end = d["end"]
+        self._result = d["result"]
         self._white = d["header"].get("White", "")
         self._black = d["header"].get("Black", "")
 
@@ -21,7 +21,7 @@ class PGNReader(object):
         file.
         """
         header, moves, end = parse_pgn(text)
-        return {"header": dict(list(header)), "moves": moves, "end": end[0]}
+        return {"header": dict(list(header)), "moves": moves, "result": end[0]}
 
     def moves2str(self, moves):
         s = ""
@@ -35,5 +35,5 @@ class PGNReader(object):
 
     def __str__(self):
         s = "%s - %s\n%s%s" % (self._white, self._black,
-            self.moves2str(self._moves), self._end)
+            self.moves2str(self._moves), self._result)
         return s

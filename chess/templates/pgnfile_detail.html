@@ -4,11 +4,22 @@
 {% block chess_content %}
 <h1>PGN file detail</h1>
 <p>
-<a href="{% url chess.views.delete_pgn_file key=object.key %}">Delete</a>
+<a href="{% url chess.views.delete_pgn_file key=pgnfile.key %}">Delete</a>
 </p>
 
-Filename: {{ object.filename }}<br/>
-Content:<br/>
-<pre>{{ object.filecontent }}</pre>
-</ul>
+Filename: {{ pgnfile.filename }}<br/>
+White: <strong>{{ white }}</strong><br/>
+Black: <strong>{{ black }}</strong><br/>
+Result: <strong>{{ result }}</strong><br/>
+Moves:<br/>
+<pre>
+{{ moves }}
+</pre>
+
+<br/>
+<br/>
+<br/>
+For debugging purposes, here is the original content of the pgn file, that is
+stored in the database:<br/>
+<pre>{{ pgnfile.filecontent }}</pre>
 {% endblock %}

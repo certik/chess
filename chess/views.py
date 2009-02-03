@@ -14,6 +14,8 @@ from ragendja.template import render_to_response, render_to_string
 from google.appengine.api import users
 from google.appengine.ext import db
 
+from pgn import PGNReader
+
 def render_to_response(tempname, dictionary):
     """
     For some reason the django.shortcuts.render_to_response() is not working
@@ -102,7 +104,15 @@ def upload_pgn(request):
 
 @login_required
 def show_pgn_file(request, key):
-    return object_detail(request, PGNFile.all(), key)
+    pgnfile = PGNFile.get(key)
+    p = PGNReader(pgnfile.filecontent)
+    return render_to_response("pgnfile_detail.html", {
+        "pgnfile": pgnfile,
+        "white": p._white,
+        "black": p._black,
+        "moves": p.moves2str(p._moves),
+        "result": p._result
+        })
 
 @login_required
 def delete_pgn_file(request, key):
