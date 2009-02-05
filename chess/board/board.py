@@ -8,27 +8,27 @@ class Board(object):
         self.setup()
 
     def setup(self):
-        self[0, 0] = Rock()
-        self[1, 0] = Knight()
-        self[2, 0] = Bishop()
-        self[3, 0] = Queen()
-        self[4, 0] = King()
-        self[5, 0] = Bishop()
-        self[6, 0] = Knight()
-        self[7, 0] = Rock()
+        self[0, 0] = Rock(self)
+        self[1, 0] = Knight(self)
+        self[2, 0] = Bishop(self)
+        self[3, 0] = Queen(self)
+        self[4, 0] = King(self)
+        self[5, 0] = Bishop(self)
+        self[6, 0] = Knight(self)
+        self[7, 0] = Rock(self)
 
         for i in range(8):
-            self[i, 1] = Pawn()
-            self[i, 6] = Pawn(black=True)
+            self[i, 1] = Pawn(self)
+            self[i, 6] = Pawn(self, black=True)
 
-        self[0, 7] = Rock(black=True)
-        self[1, 7] = Knight(black=True)
-        self[2, 7] = Bishop(black=True)
-        self[3, 7] = Queen(black=True)
-        self[4, 7] = King(black=True)
-        self[5, 7] = Bishop(black=True)
-        self[6, 7] = Knight(black=True)
-        self[7, 7] = Rock(black=True)
+        self[0, 7] = Rock(self, black=True)
+        self[1, 7] = Knight(self, black=True)
+        self[2, 7] = Bishop(self, black=True)
+        self[3, 7] = Queen(self, black=True)
+        self[4, 7] = King(self, black=True)
+        self[5, 7] = Bishop(self, black=True)
+        self[6, 7] = Knight(self, black=True)
+        self[7, 7] = Rock(self, black=True)
 
         self._white_to_move=True
 
@@ -184,7 +184,8 @@ class Board(object):
 
 class Piece(object):
 
-    def __init__(self, black=False):
+    def __init__(self, board, black=False):
+        self._board = board
         self._black = black
 
     def black(self):
@@ -200,9 +201,36 @@ class Rock(Piece):
         return "R"
 
     def can_move(self, old, new):
+        def r(a, b):
+            """
+            Returns the integers between a, b, exclusive.
+
+            Example:
+            >>> r(3, 7)
+            [4, 5, 6]
+            >>> r(7, 3)
+            [4, 5, 6]
+            """
+            a, b = sorted([a, b])
+            return range(a+1, b)
         dx = old[0]-new[0]
         dy = old[1]-new[1]
-        return (dx == 0) or (dy == 0)
+        if old[1] == new[1]:
+            # x-movement
+            # check that no piece is between the old and new position
+            for i in r(old[0], new[0]):
+                if self._board[i, old[1]] is not None:
+                    return False
+            return True
+        if old[0] == new[0]:
+            # y-movement
+            # check that no piece is between the old and new position
+            for j in r(old[1], new[1]):
+                if self._board[old[0], j] is not None:
+                    return False
+            return True
+        return False
+
 
 class Knight(Piece):
 
@@ -265,8 +293,7 @@ def main():
     b.move_algebraic("Nf6")
     b.move_algebraic("O-O")
     b.move_algebraic("Bxc3")
-    b.move_algebraic("Rf4")
-    b.move_algebraic("O-O")
+    b.move_algebraic("Re1")
     print b
 
 if __name__ == "__main__":
