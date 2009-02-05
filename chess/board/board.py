@@ -83,8 +83,12 @@ class Board(object):
             move = move[1:]
         else:
             capture = False
+        if move[-1] == "+":
+            check = True
+            move = move[:-1]
+        else:
+            check = False
         field = convert_field(move)
-        check = False
         return piece, field, capture, check
 
     def find_piece(self, piece, field):
@@ -244,6 +248,9 @@ def main():
     b.move_algebraic("Bb5")
     b.move_algebraic("a6")
     b.move_algebraic("Bxc6")
+    b.move_algebraic("d6")
+    b.move_algebraic("d3")
+    b.move_algebraic("Bb4+")
     print b
 
 if __name__ == "__main__":
