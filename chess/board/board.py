@@ -120,7 +120,6 @@ class Board(object):
         else:
             piece, field, capture, check = self.parse_move(move)
             possible_pieces = self.find_piece(piece, field)
-            print possible_pieces
             if len(possible_pieces) != 1:
                 raise InvalidMove()
             self.move_coordinate(possible_pieces[0], field)
@@ -230,9 +229,7 @@ def main():
     b = Board()
     print b
     b.move_algebraic("e4")
-    print b
     b.move_algebraic("e5")
-    print b
     b.move_algebraic("Nf3")
     b.move_algebraic("Nc6")
     b.move_algebraic("Bb5")
