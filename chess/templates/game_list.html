@@ -2,7 +2,21 @@
 {% block title %}Chess games listing{% endblock %}
 
 {% block chess_content %}
-<h1>Games list</h1>
+<h1>PGN files list</h1>
+
+<a href="{% url chess.views.upload_pgn %}">Upload PGN</a>
+<ul>
+  {% for pgn in pgn_files %}
+    <li>
+    <a href="{% url chess.views.show_pgn_file key=pgn.key %}">{{ pgn.filename }}</a>:
+    <a href="{% url chess.views.delete_pgn_file key=pgn.key %}">Delete</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<hr/>
+Below is a work in progress, it is known not to work properly yet:
+<h4>Games list</h4>
 <a href="{% url chess.views.create_game %}">New game</a>
 
 <ul>
@@ -22,16 +36,5 @@
   {% endif %}
 </div>
 
-<h1>PGN files list</h1>
-
-<a href="{% url chess.views.upload_pgn %}">Upload PGN</a>
-<ul>
-  {% for pgn in pgn_files %}
-    <li>
-    <a href="{% url chess.views.show_pgn_file key=pgn.key %}">{{ pgn.filename }}</a>:
-    <a href="{% url chess.views.delete_pgn_file key=pgn.key %}">Delete</a>
-    </li>
-  {% endfor %}
-</ul>
 
 {% endblock %}
