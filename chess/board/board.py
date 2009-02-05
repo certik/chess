@@ -222,16 +222,16 @@ class Pawn(Piece):
         if dx != 0:
             return False
         if self.white():
-            return dy == 1
+            return (dy == 1) or ((dy == 2) and (old[1] == 1))
         else:
-            return dy == -1
+            return (dy == -1) or ((dy == -2) and (old[1] == 6))
 
 def main():
     b = Board()
     print b
-    b.move_coordinate((4, 1), (4, 3))
+    b.move_algebraic("e4")
     print b
-    b.move_coordinate((4, 6), (4, 4))
+    b.move_algebraic("e5")
     print b
     b.move_algebraic("Nf3")
     b.move_algebraic("Nc6")
