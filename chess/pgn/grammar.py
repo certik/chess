@@ -37,9 +37,9 @@ m1 = file_coord + rank_coord # pawn move e.g. d4
 m2 = file_coord + capture + file_coord + rank_coord # pawn capture move e.g. dxe5
 m3 = file_coord + "8" + promote + piece # pawn promotion e.g. e8=Q
 m4 = piece + file_coord + rank_coord # piece move e.g. Be6
-m5 = piece + file_coord + file_coord + rank_coord # piece move e.g. Nbd2
-m6 = piece + rank_coord + file_coord + rank_coord # piece move e.g. R4a7
-m7 = piece + capture + file_coord + rank_coord # piece capture move e.g. Bxh7
+m5 = piece + Optional(file_coord) + Optional(capture) + file_coord + rank_coord # piece move e.g. Nbd2
+m6 = piece + Optional(rank_coord) + Optional(capture) + file_coord + rank_coord # piece move e.g. R4a7
+#m7 = piece + capture + file_coord + rank_coord # piece capture move e.g. Bxh7
 m8 = castle_queenside | castle_kingside # castling e.g. o-o
 
 check = oneOf("+ ++")
@@ -49,7 +49,7 @@ nag = " $" + Word(nums)
 decoration = check | mate | annotation | nag
 
 variant = Forward()
-half_move = Combine((m3 | m1 | m2 | m4 | m5 | m6 | m7 | m8) + Optional(decoration)) \
+half_move = Combine((m3 | m1 | m2 | m4 | m5 | m6 | m8) + Optional(decoration)) \
   + Optional(comment) +Optional(variant)
 move = Suppress(move_number) + half_move + Optional(half_move)
 variant << "(" + OneOrMore(move) + ")"
