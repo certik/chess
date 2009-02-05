@@ -199,6 +199,11 @@ class Rock(Piece):
     def to_ascii_art(self):
         return "R"
 
+    def can_move(self, old, new):
+        dx = old[0]-new[0]
+        dy = old[1]-new[1]
+        return (dx == 0) or (dy == 0)
+
 class Knight(Piece):
 
     def to_ascii_art(self):
@@ -259,6 +264,8 @@ def main():
     b.move_algebraic("Nc3")
     b.move_algebraic("Nf6")
     b.move_algebraic("O-O")
+    b.move_algebraic("Bxc3")
+    b.move_algebraic("Rf4")
     print b
 
 if __name__ == "__main__":
