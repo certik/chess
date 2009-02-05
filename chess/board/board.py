@@ -96,7 +96,7 @@ class Board(object):
                         (self[i, j].white() == self._white_to_move):
                             candidates += [(i, j)]
         # try each of them:
-        candidates = [x for x in candidates if piece.can_move(x, field)]
+        candidates = [x for x in candidates if self[x].can_move(x, field)]
         return candidates
 
     def move_algebraic(self, move):
@@ -187,8 +187,7 @@ class Knight(Piece):
     def to_ascii_art(self):
         return "N"
 
-    @classmethod
-    def can_move(cls, old, new):
+    def can_move(self, old, new):
         d = (old[0]-new[0])**2 + (old[1]-new[1])**2
         return d == 5
 
@@ -197,8 +196,7 @@ class Bishop(Piece):
     def to_ascii_art(self):
         return "B"
 
-    @classmethod
-    def can_move(cls, old, new):
+    def can_move(self, old, new):
         dx = old[0]-new[0]
         dy = old[1]-new[1]
         return (dx == dy) or (dx == -dy)
@@ -218,6 +216,16 @@ class Pawn(Piece):
     def to_ascii_art(self):
         return "p"
 
+    def can_move(self, old, new):
+        dx = new[0]-old[0]
+        dy = new[1]-old[1]
+        if dx != 0:
+            return False
+        if self.white():
+            return dy == 1
+        else:
+            return dy == -1
+
 def main():
     b = Board()
     print b
@@ -228,6 +236,7 @@ def main():
     b.move_algebraic("Nf3")
     b.move_algebraic("Nc6")
     b.move_algebraic("Bb5")
+    b.move_algebraic("a6")
     print b
 
 if __name__ == "__main__":
