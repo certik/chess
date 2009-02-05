@@ -47,6 +47,84 @@ class Board(object):
         i, j = key
         return self._board[j*8+i]
 
+    def parse_move(self, move):
+        def convert_field(field):
+            if len(field) == 2:
+                x = field[0]
+                y = field[1]
+                if x == "a": i = 0
+                if x == "b": i = 1
+                if x == "c": i = 2
+                if x == "d": i = 3
+                if x == "e": i = 4
+                if x == "f": i = 5
+                if x == "g": i = 6
+                if x == "h": i = 7
+                j = int(y)-1
+                return i, j
+            else:
+                raise InvalidMove()
+        if move[0] == "R":
+            piece = Rock
+        elif move[0] == "N":
+            piece = Knight
+        elif move[0] == "B":
+            piece = Bishop
+        elif move[0] == "Q":
+            piece = Queen
+        elif move[0] == "K":
+            piece = King
+        else:
+            piece = Pawn
+        if piece == Pawn:
+            field = convert_field(move)
+        else:
+            field = convert_field(move[1:])
+        capture = False
+        check = False
+        return piece, field, capture, check
+
+    def find_piece(self, piece, field):
+        """
+        Finds the piece "piece" that can go to the field "field".
+        """
+        candidates = []
+        # first find all pieces of the type "piece" on the board:
+        for i in range(8):
+            for j in range(8):
+                if isinstance(self[i, j], piece) and \
+                        (self[i, j].white() == self._white_to_move):
+                            candidates += [(i, j)]
+        # try each of them:
+        candidates = [x for x in candidates if piece.can_move(x, field)]
+        return candidates
+
+    def move_algebraic(self, move):
+        """
+        Do one move.
+
+        "move" is given in the Short Algebraic notation.
+        """
+        if move == "O-O":
+            # kingside castling
+            if self._white_to_move:
+                self.move_coordinate((4, 0), (6, 0))
+            else:
+                self.move_coordinate((4, 7), (6, 7))
+        elif move == "O-O-O":
+            # queenside castling
+            if self._white_to_move:
+                self.move_coordinate((4, 0), (2, 0))
+            else:
+                self.move_coordinate((4, 7), (2, 7))
+        else:
+            piece, field, capture, check = self.parse_move(move)
+            possible_pieces = self.find_piece(piece, field)
+            print possible_pieces
+            if len(possible_pieces) != 1:
+                raise InvalidMove()
+            self.move_coordinate(possible_pieces[0], field)
+
     def move_coordinate(self, old, new):
         """
         Do one move. "old" and "new" are coordinates.
@@ -95,6 +173,9 @@ class Piece(object):
     def black(self):
         return self._black
 
+    def white(self):
+        return not self._black
+
 
 class Rock(Piece):
 
@@ -105,6 +186,11 @@ class Knight(Piece):
 
     def to_ascii_art(self):
         return "N"
+
+    @classmethod
+    def can_move(cls, old, new):
+        d = (old[0]-new[0])**2 + (old[1]-new[1])**2
+        return d == 5
 
 class Bishop(Piece):
 
@@ -132,6 +218,10 @@ def main():
     b.move_coordinate((4, 1), (4, 3))
     print b
     b.move_coordinate((4, 6), (4, 4))
+    print b
+    b.move_algebraic("Nf3")
+    b.move_algebraic("Nc6")
+    #b.move_algebraic("Bb5")
     print b
 
 if __name__ == "__main__":
