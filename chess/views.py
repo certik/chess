@@ -109,13 +109,15 @@ def show_pgn_file(request, key):
     p = PGNReader(pgnfile.filecontent)
     b = Board()
     b.moves_from_list(p.moves_as_list())
+    nick = users.get_current_user().nickname()
     return render_to_response("pgnfile_detail.html", {
         "pgnfile": pgnfile,
         "white": p._white,
         "black": p._black,
         "moves": p.moves2str(p._moves),
         "board": str(b),
-        "result": p._result
+        "result": p._result,
+        "login": nick
         })
 
 @login_required
