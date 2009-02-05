@@ -76,11 +76,14 @@ class Board(object):
             piece = King
         else:
             piece = Pawn
-        if piece == Pawn:
-            field = convert_field(move)
+        if piece != Pawn:
+            move = move[1:]
+        if move[0] == "x":
+            capture = True
+            move = move[1:]
         else:
-            field = convert_field(move[1:])
-        capture = False
+            capture = False
+        field = convert_field(move)
         check = False
         return piece, field, capture, check
 
@@ -119,6 +122,12 @@ class Board(object):
                 self.move_coordinate((4, 7), (2, 7))
         else:
             piece, field, capture, check = self.parse_move(move)
+            if capture:
+                if self[field] is None:
+                    raise InvalidMove()
+            else:
+                if self[field] is not None:
+                    raise InvalidMove()
             possible_pieces = self.find_piece(piece, field)
             if len(possible_pieces) != 1:
                 raise InvalidMove()
@@ -234,6 +243,7 @@ def main():
     b.move_algebraic("Nc6")
     b.move_algebraic("Bb5")
     b.move_algebraic("a6")
+    b.move_algebraic("Bxc6")
     print b
 
 if __name__ == "__main__":
