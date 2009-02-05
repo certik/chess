@@ -197,6 +197,12 @@ class Bishop(Piece):
     def to_ascii_art(self):
         return "B"
 
+    @classmethod
+    def can_move(cls, old, new):
+        dx = old[0]-new[0]
+        dy = old[1]-new[1]
+        return (dx == dy) or (dx == -dy)
+
 class Queen(Piece):
 
     def to_ascii_art(self):
@@ -221,7 +227,7 @@ def main():
     print b
     b.move_algebraic("Nf3")
     b.move_algebraic("Nc6")
-    #b.move_algebraic("Bb5")
+    b.move_algebraic("Bb5")
     print b
 
 if __name__ == "__main__":
