@@ -266,6 +266,7 @@ def main():
     b.move_algebraic("O-O")
     b.move_algebraic("Bxc3")
     b.move_algebraic("Rf4")
+    b.move_algebraic("O-O")
     print b
 
 if __name__ == "__main__":
