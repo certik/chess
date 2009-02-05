@@ -115,15 +115,19 @@ class Board(object):
         if move == "O-O":
             # kingside castling
             if self._white_to_move:
-                self.move_coordinate((4, 0), (6, 0))
+                self.move_coordinate((4, 0), (6, 0), True)
+                self.move_coordinate((7, 0), (5, 0))
             else:
-                self.move_coordinate((4, 7), (6, 7))
+                self.move_coordinate((4, 7), (6, 7), True)
+                self.move_coordinate((7, 7), (5, 7))
         elif move == "O-O-O":
             # queenside castling
             if self._white_to_move:
-                self.move_coordinate((4, 0), (2, 0))
+                self.move_coordinate((4, 0), (2, 0), True)
+                self.move_coordinate((0, 0), (3, 0))
             else:
-                self.move_coordinate((4, 7), (2, 7))
+                self.move_coordinate((4, 7), (2, 7), True)
+                self.move_coordinate((0, 7), (3, 7))
         else:
             piece, field, capture, check = self.parse_move(move)
             if capture:
@@ -137,7 +141,7 @@ class Board(object):
                 raise InvalidMove()
             self.move_coordinate(possible_pieces[0], field)
 
-    def move_coordinate(self, old, new):
+    def move_coordinate(self, old, new, castling=False):
         """
         Do one move. "old" and "new" are coordinates.
 
@@ -154,7 +158,8 @@ class Board(object):
 
         self[old] = None
         self[new] = p
-        self._white_to_move = not self._white_to_move
+        if not castling:
+            self._white_to_move = not self._white_to_move
 
     def to_ascii_art(self):
         s = ""
@@ -251,6 +256,9 @@ def main():
     b.move_algebraic("d6")
     b.move_algebraic("d3")
     b.move_algebraic("Bb4+")
+    b.move_algebraic("Nc3")
+    b.move_algebraic("Nf6")
+    b.move_algebraic("O-O")
     print b
 
 if __name__ == "__main__":
