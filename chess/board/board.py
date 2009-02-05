@@ -113,10 +113,7 @@ class Board(object):
                         (self[i, j].white() == self._white_to_move):
                             candidates += [(i, j)]
         # try each of them:
-        print "_"*40
-        print candidates
         candidates = [x for x in candidates if self[x].can_move(x, field)]
-        print candidates
         return candidates
 
     def use_helper(self, helper, candidates):
