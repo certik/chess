@@ -67,7 +67,6 @@ class Board(object):
                 j = int(y)-1
                 return i, j
             else:
-                print field
                 raise InvalidMove(move)
         if move[0] == "R":
             piece = Rock
