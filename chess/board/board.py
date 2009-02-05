@@ -121,6 +121,10 @@ class Board(object):
             return [x for x in candidates if x[1] == j]
         return candidates
 
+    def moves_from_list(self, moves):
+        for move in moves:
+            self.move_algebraic(move)
+
     def move_algebraic(self, move):
         """
         Do one move.
@@ -382,8 +386,7 @@ class Pawn(Piece):
 def main():
     moves = ['d4', 'Nf6', 'c4', 'c5', 'd5', 'b5', 'cxb5', 'a6', 'e3', 'Bb7', 'Nc3', 'axb5', 'Bxb5', 'Qa5', 'Bd2', 'Qb6', 'Nf3', 'Nxd5', 'Nxd5', 'Bxd5', 'a4', 'e6', 'Bc3', 'Be7', 'O-O', 'O-O', 'Ne5', 'd6', 'Nc4', 'Bxc4', 'Qg4', 'g6', 'Qxc4', 'Nc6', 'e4', 'Nd4', 'Bxd4', 'cxd4', 'Rfc1', 'Bg5', 'Rc2', 'Kg7', 'b4', 'Rfc8', 'Qxc8', 'Rxc8', 'Rxc8', 'd3', 'Bxd3', 'Qd4', 'Rd1', 'Qxb4', 'Bc2', 'Bf6', 'h3', 'Bd4', 'Rf1', 'Bc5', 'Ra8', 'h5', 'a5', 'Qb7', 'Re8', 'Qa6', 'Bd1', 'Qxa5', 'Bf3', 'h4', 'Re7', 'Qb4', 'Rc7', 'Qb6', 'Rc8', 'Qb7', 'Re8', 'Qb2', 'Bd1', 'Qd2', 'Bf3', 'Qd4', 'Ra8', 'Kf6', 'Ra2', 'Qe5', 'Rc1', 'Qf4', 'Rc4', 'Ke5', 'Re2', 'Qg5', 'Kf1', 'Qd8', 'Rcc2', 'Qa5', 'Ra2', 'Qc3', 'Rac2', 'Qd3', 'Kg1', 'Qd1+', 'Kh2', 'Qa1', 'Ra2', 'Qc3', 'Rec2', 'Qd4', 'Rd2', 'Qc3', 'Rdc2', 'Qe1', 'Re2', 'Qb1', 'Rac2', 'Bd4', 'Rcd2', 'Qb4', 'Rc2', 'Kf6', 'g3', 'hxg3+', 'Kxg3', 'Be5+', 'Kg2', 'Qb8', 'h4', 'Qh8', 'Kh3', 'Qh6', 'Re1', 'Qf4', 'Kg2', 'Qh2+', 'Kf1', 'Qxh4', 'Rd1', 'Qh8', 'Ke2', 'Qb8', 'Rcd2', 'Qb5+', 'Rd3', 'Qc4', 'Rg1', 'Bf4', 'Rgd1', 'Ke5', 'Ke1', 'Kf6', 'Rd4', 'Qc3+', 'Ke2', 'Qc2+', 'Kf1', 'Kg5', 'Be2', 'f5', 'f3', 'Qc3', 'R1d3', 'Qc7', 'Bd1', 'Qh7', 'exf5', 'Qh1+', 'Kf2', 'Qh2+', 'Kf1', 'gxf5', 'Bb3', 'Bg3', 'f4+', 'Kf6', 'Rd2', 'Qh1+', 'Ke2', 'Qg2+', 'Kd3', 'Qf3+', 'Kc2', 'Bxf4', 'Rd1', 'Qe2+', 'Kb1', 'Be5', 'R4d2', 'Qe4+', 'Rd3', 'd5', 'Bc2', 'Qb4+', 'Rb3', 'Qa5', 'Kc1', 'Qa1+', 'Kd2', 'Qd4+', 'Kc1', 'Qc5', 'Rf1', 'Bd4', 'Kd2', 'Qc4', 'Rff3', 'Be5', 'Kd1', 'Bd6', 'Rbc3', 'Qg4', 'Ke2', 'f4', 'Kf1', 'Bc5', 'Ke2', 'Bd6', 'Bb3', 'Be5', 'Rcd3', 'Bd6', 'Kf1', 'Bc5', 'Ke1', 'Ke5', 'Kd2', 'Be3+', 'Rdxe3+', 'fxe3+', 'Rxe3+', 'Kd6', 'Bc2', 'e5', 'Ke1', 'e4', 'Kd2', 'Ke5', 'Re2', 'Qf3', 'Bd1', 'd4', 'Kc1', 'Qc3+', 'Kb1', 'd3', 'Rh2', 'Kd4', 'Ka2', 'Qa5+', 'Kb2', 'Qc3+', 'Ka2', 'Qc1', 'Rh8', 'Qxd1', 'Ka3', 'Qb1', 'Rd8+', 'Ke3'] 
     b = Board()
-    for move in moves:
-        b.move_algebraic(move)
+    b.moves_from_list(moves)
     print b
     print '"' + b.to_string() + '"'
 

@@ -15,6 +15,7 @@ from google.appengine.api import users
 from google.appengine.ext import db
 
 from pgn import PGNReader
+from board import Board
 
 def render_to_response(tempname, dictionary):
     """
@@ -106,11 +107,14 @@ def upload_pgn(request):
 def show_pgn_file(request, key):
     pgnfile = PGNFile.get(key)
     p = PGNReader(pgnfile.filecontent)
+    b = Board()
+    b.moves_from_list(p.moves_as_list())
     return render_to_response("pgnfile_detail.html", {
         "pgnfile": pgnfile,
         "white": p._white,
         "black": p._black,
         "moves": p.moves2str(p._moves),
+        "board": str(b),
         "result": p._result
         })
 
