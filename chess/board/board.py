@@ -117,6 +117,9 @@ class Board(object):
         if (helper != "") and (helper in "abcdefgh"):
             i = self.a2i(helper)
             return [x for x in candidates if x[0] == i]
+        if (helper != "") and (helper in "12345678"):
+            j = int(helper) - 1
+            return [x for x in candidates if x[1] == j]
         return candidates
 
     def move_algebraic(self, move):

@@ -63,3 +63,11 @@ def test_moves5():
         b.move_algebraic(move)
     assert b.to_string() == \
         "                    r P   K   P  P    p  p B p     k N          "
+
+def test_moves5():
+    moves = ['d4', 'Nf6', 'c4', 'c5', 'd5', 'b5', 'Nf3', 'b4', 'Nbd2', 'g6', 'b3', 'Bg7', 'Bb2', 'O-O', 'e4', 'd6', 'Qc2', 'e5', 'dxe6', 'Bxe6', 'g3', 'Nc6', 'Bg2', 'Bg4', 'O-O', 'Nd7', 'h3', 'Bxf3', 'Nxf3', 'Bxb2', 'Qxb2', 'Nde5', 'Ne1', 'Nd4', 'f4', 'Nec6', 'Nd3', 'a5', 'Rad1', 'a4', 'Kh2', 'axb3', 'axb3', 'Ra3', 'Nc1', 'Qf6', 'Rf2', 'Rfa8', 'Re1', 'Qe7', 'Re3', 'Ra1', 'e5', 'dxe5', 'Nd3', 'R8a2', 'Qxa2', 'Rxa2', 'Rxa2', 'Nf5', 'Re1', 'Qd6', 'Bd5', 'exf4', 'Nxf4', 'h5', 'h4', 'Nce7', 'Rd2', 'Kg7', 'Rd3', 'Nxg3', 'Rxe7', 'Nf1+', 'Kg2', 'Qxe7', 'Kxf1', 'Qxh4', 'Rf3', 'Qh1+', 'Ke2', 'Qb1', 'Nxh5+', 'gxh5', 'Rxf7+', 'Kh6', 'Rf3', 'Qg1', 'Rf6+', 'Kg5', 'Rf2', 'Qb1', 'Rf3', 'Qc2+', 'Ke1', 'Kg4', 'Re3', 'h4', 'Bb7', 'Qh2', 'Kf1', 'Qd2', 'Bc8+', 'Kf4', 'Rh3', 'Qd8', 'Bb7', 'Qd1+', 'Kf2', 'Qc2+', 'Kf1', 'Qd1+', 'Kf2', 'Qd2+', 'Kf1', 'Ke5', 'Bg2', 'Qg5', 'Kf2', 'Kd4', 'Rf3', 'Qc1', 'Bh3', 'Qd2+', 'Kf1', 'Qd1+', 'Kf2', 'Qh1', 'Bg2', 'Qc1', 'Bh3', 'Qb2+', 'Kf1', 'Qc3', 'Kf2', 'Qd2+', 'Kf1', 'Ke4', 'Bg2', 'Ke5', 'Bh3', 'Kd4', 'Bg2', 'Qa2', 'Bh3', 'Qh2', 'Bg2', 'Qe5', 'Kf2', 'Qe4', 'Bh3', 'Qc2+', 'Kf1', 'Qd2', 'Bg2', 'Qc1+', 'Kf2', 'Qb2+', 'Kf1', 'Qa1+', 'Kf2', 'Ke4', 'Rh3+', 'Kf5', 'Rf3+', 'Kg5', 'Bh3', 'Qb2+', 'Kf1', 'Qc2', 'Ke1', 'Qe4+', 'Kf2', 'Qb1', 'Kg2', 'Qe1', 'Rf5+', 'Kg6', 'Rf3', 'Kg7', 'Rf2', 'Qd1', 'Rf3', 'Qd2+', 'Kf1', 'Kg6', 'Bg2', 'Qd1+', 'Kf2', 'Qd4+', 'Kf1', 'Qg4', 'Kf2', 'Kg5', 'Bh3', 'Qe4', 'Kg2', 'Qe2+', 'Rf2']
+    b = Board()
+    for move in moves:
+        b.move_algebraic(move)
+    assert b.to_string() == \
+        "                          P   K  Pp    P p     b    Qrk         "
