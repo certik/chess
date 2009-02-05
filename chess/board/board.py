@@ -114,7 +114,7 @@ class Board(object):
         return candidates
 
     def use_helper(self, helper, candidates):
-        if helper in "abcdefgh":
+        if (helper != "") and (helper in "abcdefgh"):
             i = self.a2i(helper)
             return [x for x in candidates if x[0] == i]
         return candidates
@@ -150,6 +150,8 @@ class Board(object):
                 if self[field] is not None:
                     raise InvalidMove()
             possible_pieces = self.find_piece(piece, field)
+            #print self
+            #print possible_pieces, piece, field
             if len(possible_pieces) != 1:
                 possible_pieces = self.use_helper(helper, possible_pieces)
             if len(possible_pieces) != 1:
@@ -305,6 +307,10 @@ class Queen(Piece):
         else:
             return "q"
 
+    def can_move(self, old, new):
+        return Bishop(self._board, self._black).can_move(old, new) or \
+                Rock(self._board, self._black).can_move(old, new)
+
 class King(Piece):
 
     def to_ascii_art(self):
@@ -315,6 +321,11 @@ class King(Piece):
             return "K"
         else:
             return "k"
+
+    def can_move(self, old, new):
+        dx = old[0]-new[0]
+        dy = old[1]-new[1]
+        return (dx in [-1, 0, 1]) and (dy in [-1, 0, 1])
 
 class Pawn(Piece):
 
@@ -346,13 +357,11 @@ class Pawn(Piece):
 
 def main():
     moves = ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6', 'Ba4', 'Nf6', 'O-O', 'Be7', 'Re1', 'b5', 'Bb3', 'd6', 'c3', 'O-O', 'h3', 'Nb8', 'd4', 'Nbd7', 'c4', 'c6', 'cxb5', 'axb5', 'Nc3', 'Bb7', 'Bg5', 'b4', 'Nb1', 'h6', 'Bh4', 'c5', 'dxe5', 'Nxe4', 'Bxe7', 'Qxe7', 'exd6', 'Qf6', 'Nbd2', 'Nxd6', 'Nc4', 'Nxc4', 'Bxc4', 'Nb6', 'Ne5', 'Rae8', 'Bxf7+', 'Rxf7', 'Nxf7', 'Rxe1+', 'Qxe1', 'Kxf7', 'Qe3', 'Qg5', 'Qxg5', 'hxg5', 'b3', 'Ke6', 'a3', 'Kd6', 'axb4', 'cxb4', 'Ra5', 'Nd5', 'f3', 'Bc8', 'Kf2', 'Bf5', 'Ra7', 'g6', 'Ra6+', 'Kc5', 'Ke1', 'Nf4', 'g3', 'Nxh3', 'Kd2', 'Kb5', 'Rd6', 'Kc5', 'Ra6', 'Nf2', 'g4', 'Bd3', 'Re6']
-    print moves[20]
-    moves = moves[:20]
     b = Board()
     for move in moves:
         b.move_algebraic(move)
     print b
-    print b.to_string()
+    print '"' + b.to_string() + '"'
 
 if __name__ == "__main__":
     main()
