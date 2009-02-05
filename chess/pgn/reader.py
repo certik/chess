@@ -37,6 +37,16 @@ class PGNReader(object):
                 s += "%d. %s\n" % (n+1, move[0])
         return s
 
+    def moves_as_list(self):
+        l = []
+        for move in self._moves:
+            if len(move) == 2:
+                l += [move[0], move[1]]
+            else:
+                assert len(move) == 1
+                l += [move[0]]
+        return l
+
     def __str__(self):
         s = "%s - %s\n%s%s" % (self._white, self._black,
             self.moves2str(self._moves), self._result)
