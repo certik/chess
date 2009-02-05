@@ -178,6 +178,16 @@ class Board(object):
             s += "+" + "---+"*8 + "\n"
         return s
 
+    def to_string(self):
+        s = ""
+        for j in reversed(range(8)):
+            for i in range(8):
+                if self[i, j] is None:
+                    s += " "
+                else:
+                    s += self[i, j].to_string()
+        return s
+
 
     def __str__(self):
         return self.to_ascii_art()
@@ -199,6 +209,12 @@ class Rock(Piece):
 
     def to_ascii_art(self):
         return "R"
+
+    def to_string(self):
+        if self._black:
+            return "R"
+        else:
+            return "r"
 
     def can_move(self, old, new):
         def r(a, b):
@@ -237,6 +253,12 @@ class Knight(Piece):
     def to_ascii_art(self):
         return "N"
 
+    def to_string(self):
+        if self._black:
+            return "N"
+        else:
+            return "n"
+
     def can_move(self, old, new):
         d = (old[0]-new[0])**2 + (old[1]-new[1])**2
         return d == 5
@@ -245,6 +267,12 @@ class Bishop(Piece):
 
     def to_ascii_art(self):
         return "B"
+
+    def to_string(self):
+        if self._black:
+            return "B"
+        else:
+            return "b"
 
     def can_move(self, old, new):
         dx = old[0]-new[0]
@@ -256,15 +284,33 @@ class Queen(Piece):
     def to_ascii_art(self):
         return "Q"
 
+    def to_string(self):
+        if self._black:
+            return "Q"
+        else:
+            return "q"
+
 class King(Piece):
 
     def to_ascii_art(self):
         return "K"
 
+    def to_string(self):
+        if self._black:
+            return "K"
+        else:
+            return "k"
+
 class Pawn(Piece):
 
     def to_ascii_art(self):
         return "p"
+
+    def to_string(self):
+        if self._black:
+            return "P"
+        else:
+            return "p"
 
     def can_move(self, old, new):
         dx = new[0]-old[0]
@@ -295,6 +341,7 @@ def main():
     b.move_algebraic("Bxc3")
     b.move_algebraic("Re1")
     print b
+    print b.to_string()
 
 if __name__ == "__main__":
     main()
