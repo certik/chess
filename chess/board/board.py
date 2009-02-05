@@ -47,19 +47,23 @@ class Board(object):
         i, j = key
         return self._board[j*8+i]
 
+    def a2i(self, x):
+        if x == "a": i = 0
+        if x == "b": i = 1
+        if x == "c": i = 2
+        if x == "d": i = 3
+        if x == "e": i = 4
+        if x == "f": i = 5
+        if x == "g": i = 6
+        if x == "h": i = 7
+        return i
+
     def parse_move(self, move):
         def convert_field(field):
             if len(field) == 2:
                 x = field[0]
                 y = field[1]
-                if x == "a": i = 0
-                if x == "b": i = 1
-                if x == "c": i = 2
-                if x == "d": i = 3
-                if x == "e": i = 4
-                if x == "f": i = 5
-                if x == "g": i = 6
-                if x == "h": i = 7
+                i = self.a2i(x)
                 j = int(y)-1
                 return i, j
             else:
@@ -83,13 +87,19 @@ class Board(object):
             move = move[1:]
         else:
             capture = False
+        helper = None
+        if move[1] == "x":
+            capture = True
+            assert piece == Pawn
+            helper = move[:1]
+            move = move[2:]
         if move[-1] == "+":
             check = True
             move = move[:-1]
         else:
             check = False
         field = convert_field(move)
-        return piece, field, capture, check
+        return piece, field, capture, check, helper
 
     def find_piece(self, piece, field):
         """
@@ -103,7 +113,16 @@ class Board(object):
                         (self[i, j].white() == self._white_to_move):
                             candidates += [(i, j)]
         # try each of them:
+        print "_"*40
+        print candidates
         candidates = [x for x in candidates if self[x].can_move(x, field)]
+        print candidates
+        return candidates
+
+    def use_helper(self, helper, candidates):
+        if helper in "abcdefgh":
+            i = self.a2i(helper)
+            return [x for x in candidates if x[0] == i]
         return candidates
 
     def move_algebraic(self, move):
@@ -129,7 +148,7 @@ class Board(object):
                 self.move_coordinate((4, 7), (2, 7), True)
                 self.move_coordinate((0, 7), (3, 7))
         else:
-            piece, field, capture, check = self.parse_move(move)
+            piece, field, capture, check, helper = self.parse_move(move)
             if capture:
                 if self[field] is None:
                     raise InvalidMove()
@@ -137,6 +156,8 @@ class Board(object):
                 if self[field] is not None:
                     raise InvalidMove()
             possible_pieces = self.find_piece(piece, field)
+            if len(possible_pieces) != 1:
+                possible_pieces = self.use_helper(helper, possible_pieces)
             if len(possible_pieces) != 1:
                 raise InvalidMove()
             self.move_coordinate(possible_pieces[0], field)
@@ -315,16 +336,22 @@ class Pawn(Piece):
     def can_move(self, old, new):
         dx = new[0]-old[0]
         dy = new[1]-old[1]
-        if dx != 0:
-            return False
-        if self.white():
-            return (dy == 1) or ((dy == 2) and (old[1] == 1))
-        else:
-            return (dy == -1) or ((dy == -2) and (old[1] == 6))
+        if dx == 0:
+            if self._board[new] is None:
+                if self.white():
+                    return (dy == 1) or ((dy == 2) and (old[1] == 1))
+                else:
+                    return (dy == -1) or ((dy == -2) and (old[1] == 6))
+        if dx in [-1, 1]:
+            if self._board[new] is not None:
+                if self.white():
+                    return dy == 1
+                else:
+                    return dy == -1
+        return False
 
 def main():
     b = Board()
-    print b
     b.move_algebraic("e4")
     b.move_algebraic("e5")
     b.move_algebraic("Nf3")
@@ -332,14 +359,14 @@ def main():
     b.move_algebraic("Bb5")
     b.move_algebraic("a6")
     b.move_algebraic("Bxc6")
-    b.move_algebraic("d6")
-    b.move_algebraic("d3")
-    b.move_algebraic("Bb4+")
-    b.move_algebraic("Nc3")
-    b.move_algebraic("Nf6")
-    b.move_algebraic("O-O")
-    b.move_algebraic("Bxc3")
-    b.move_algebraic("Re1")
+    b.move_algebraic("dxc6")
+    #b.move_algebraic("d3")
+    #b.move_algebraic("Bb4+")
+    #b.move_algebraic("Nc3")
+    #b.move_algebraic("Nf6")
+    #b.move_algebraic("O-O")
+    #b.move_algebraic("Bxc3")
+    #b.move_algebraic("Re1")
     print b
     print b.to_string()
 
