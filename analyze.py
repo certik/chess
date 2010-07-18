@@ -1,7 +1,12 @@
 from chess.pgn import PGNReader
 from chess.board import Board
+from py_uci import UCIEngine
 
 p = PGNReader(open("op.pgn").read())
 b = Board()
 b.moves_from_list(p.moves_as_list())
-print b
+e = UCIEngine()
+e.new_game()
+e.make_moves(b.get_moves())
+best_move, ponder = e.find_best_move(100000)
+print "computer:", best_move

@@ -25,6 +25,17 @@ class UCIEngine(object):
         """
         self._p.sendline("position moves %s" % move)
 
+    def make_moves(self, moves):
+        """
+        Make the move 'moves' on the internal chessboard.
+
+        'moves' is a list of moves.
+
+        The move has to be a valid move, otherwise the engine can segfault
+        later on.
+        """
+        self._p.sendline("position moves %s" % " ".join(moves))
+
     def find_best_move(self, movetime=2):
         self._p.sendline("go movetime %d" % movetime)
         self._p.expect("bestmove (\S+) ponder (\S+)")

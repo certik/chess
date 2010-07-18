@@ -6,6 +6,7 @@ class Board(object):
     def __init__(self):
         self._board = [None]*64
         self.setup()
+        self._moves = []
 
     def setup(self):
         self[0, 0] = Rock(self)
@@ -57,6 +58,9 @@ class Board(object):
         if x == "g": i = 6
         if x == "h": i = 7
         return i
+
+    def i2a(self, i):
+        return "abcdefgh"[i]
 
     def parse_move(self, move):
         def convert_field(field):
@@ -196,6 +200,9 @@ class Board(object):
                     self[new[0], 3] = None
         if not castling:
             self._white_to_move = not self._white_to_move
+            move = "%s%d%s%d" % (self.i2a(old[0]), old[1]+1,
+                    self.i2a(new[0]), new[1]+1)
+            self._moves.append(move)
 
     def to_ascii_art(self):
         s = ""
@@ -227,6 +234,12 @@ class Board(object):
 
     def __str__(self):
         return self.to_ascii_art()
+
+    def get_moves(self):
+        """
+        Return a list of moves in "e2e4" notation.
+        """
+        return self._moves
 
 class Piece(object):
 
