@@ -8,6 +8,7 @@ class UCIEngine(object):
         if debug:
             self._p.logfile = sys.stdout
         self._p.sendline("uci")
+        self._p.sendline("setoption name Hash value 1024")
         self._p.expect("uciok")
         self._p.sendline("ucinewgame")
         self._p.sendline("isready")
