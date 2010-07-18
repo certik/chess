@@ -39,12 +39,18 @@ def get_move_from_user(default="e2e4"):
     print "Using the move:", move
     return move
 
-e = UCIEngine()
-e.new_game()
-ponder = "e2e4"
-while 1:
-    move = get_move_from_user(ponder)
-    e.make_move(move)
-    best_move, ponder = e.find_best_move()
-    e.make_move(best_move)
-    print "computer:", best_move
+if __name__ == "__main__":
+    e = UCIEngine()
+    e.new_game()
+    ponder = "e2e4"
+    i = 0
+    while 1:
+        i += 1
+        if i < 30:
+            move = ponder
+        else:
+            move = get_move_from_user(ponder)
+        e.make_move(move)
+        best_move, ponder = e.find_best_move()
+        e.make_move(best_move)
+        print "computer:", best_move
