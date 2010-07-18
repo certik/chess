@@ -8,5 +8,5 @@ b.moves_from_list(p.moves_as_list())
 e = UCIEngine()
 e.new_game()
 e.make_moves(b.get_moves())
-best_move, ponder = e.find_best_move(100000)
+best_move, ponder = e.find_best_move(None)
 print "computer:", best_move

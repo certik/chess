@@ -37,7 +37,10 @@ class UCIEngine(object):
         self._p.sendline("position moves %s" % " ".join(moves))
 
     def find_best_move(self, movetime=2):
-        self._p.sendline("go movetime %d" % movetime)
+        if movetime is None:
+            self._p.sendline("go infinite")
+        else:
+            self._p.sendline("go movetime %d" % movetime)
         self._p.expect("bestmove (\S+) ponder (\S+)", timeout=None)
         best_move, ponder = self._p.match.groups()
         return best_move, ponder
