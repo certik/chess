@@ -134,19 +134,19 @@ class Board(object):
         if move == "O-O":
             # kingside castling
             if self._white_to_move:
-                self.move_coordinate((4, 0), (6, 0), True)
-                self.move_coordinate((7, 0), (5, 0))
+                self.move_coordinate((4, 0), (6, 0))
+                self.move_coordinate((7, 0), (5, 0), True)
             else:
-                self.move_coordinate((4, 7), (6, 7), True)
-                self.move_coordinate((7, 7), (5, 7))
+                self.move_coordinate((4, 7), (6, 7))
+                self.move_coordinate((7, 7), (5, 7), True)
         elif move == "O-O-O":
             # queenside castling
             if self._white_to_move:
-                self.move_coordinate((4, 0), (2, 0), True)
-                self.move_coordinate((0, 0), (3, 0))
+                self.move_coordinate((4, 0), (2, 0))
+                self.move_coordinate((0, 0), (3, 0), True)
             else:
-                self.move_coordinate((4, 7), (2, 7), True)
-                self.move_coordinate((0, 7), (3, 7))
+                self.move_coordinate((4, 7), (2, 7))
+                self.move_coordinate((0, 7), (3, 7), True)
         else:
             piece, field, capture, check, helper = self.parse_move(move)
             if capture:
@@ -178,8 +178,9 @@ class Board(object):
         if p is None:
             raise InvalidMove()
 
-        if not (self._white_to_move == (not p.black())):
-            raise InvalidMove()
+        if not castling:
+            if not (self._white_to_move == (not p.black())):
+                raise InvalidMove()
 
         self[old] = None
         self[new] = p
