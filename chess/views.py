@@ -28,6 +28,9 @@ def render_to_response(tempname, dictionary):
     return r
 
 def BREAKPOINT():
+    """
+    For debugging purposes.
+    """
     import pdb, sys
     p = pdb.Pdb(None, sys.__stdin__, sys.__stdout__)
     p.set_trace()
