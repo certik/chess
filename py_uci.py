@@ -65,6 +65,7 @@ if __name__ == "__main__":
             move = ponder
         else:
             move = get_move_from_user(ponder)
+        print "you:", move
         e.make_move(move)
         best_move, ponder = e.find_best_move()
         e.make_move(best_move)
