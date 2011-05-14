@@ -17,56 +17,18 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(MISC_H_INCLUDED)
 #define MISC_H_INCLUDED
 
-
-////
-//// Includes
-////
-
-#include <fstream>
 #include <string>
-
-#include "application.h"
 #include "types.h"
 
-////
-//// Macros
-////
-
-#define Min(x, y) (((x) < (y))? (x) : (y))
-#define Max(x, y) (((x) < (y))? (y) : (x))
-
-
-////
-//// Variables
-////
-
-extern bool Chess960;
-
-
-////
-//// Prototypes
-////
-
 extern const std::string engine_name();
+extern const std::string engine_authors();
 extern int get_system_time();
 extern int cpu_count();
-extern int Bioskey();
+extern int input_available();
 extern void prefetch(char* addr);
-
-
-////
-//// Debug
-////
-
-extern bool dbg_show_mean;
-extern bool dbg_show_hit_rate;
-
-extern uint64_t dbg_cnt0;
-extern uint64_t dbg_cnt1;
 
 extern void dbg_hit_on(bool b);
 extern void dbg_hit_on_c(bool c, bool b);
@@ -75,7 +37,5 @@ extern void dbg_after();
 extern void dbg_mean_of(int v);
 extern void dbg_print_hit_rate();
 extern void dbg_print_mean();
-extern void dbg_print_hit_rate(std::ofstream& logFile);
-extern void dbg_print_mean(std::ofstream& logFile);
 
 #endif // !defined(MISC_H_INCLUDED)

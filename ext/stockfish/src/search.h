@@ -17,66 +17,57 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(SEARCH_H_INCLUDED)
 #define SEARCH_H_INCLUDED
 
-////
-//// Includes
-////
+#include <cstring>
 
-#include "depth.h"
 #include "move.h"
-#include "value.h"
+#include "types.h"
 
-
-////
-//// Constants
-////
-
-const int PLY_MAX = 100;
-const int PLY_MAX_PLUS_2 = 102;
-const int KILLER_MAX = 2;
-
-
-////
-//// Types
-////
+class Position;
+struct SplitPoint;
 
 /// The SearchStack struct keeps track of the information we need to remember
 /// from nodes shallower and deeper in the tree during the search.  Each
 /// search thread has its own array of SearchStack objects, indexed by the
 /// current ply.
-struct EvalInfo;
 
 struct SearchStack {
+  int ply;
   Move currentMove;
   Move mateKiller;
-  Move threatMove;
   Move excludedMove;
   Move bestMove;
-  Move killers[KILLER_MAX];
+  Move killers[2];
   Depth reduction;
   Value eval;
+  Value evalMargin;
   bool skipNullMove;
-
-  void init();
-  void initKillers();
+  SplitPoint* sp;
 };
 
 
-////
-//// Prototypes
-////
+/// The SearchLimits struct stores information sent by GUI about available time
+/// to search the current move, maximum depth/time, if we are in analysis mode
+/// or if we have to ponder while is our opponent's side to move.
+
+struct SearchLimits {
+
+  SearchLimits() { memset(this, 0, sizeof(SearchLimits)); }
+
+  SearchLimits(int t, int i, int mtg, int mt, int md, int mn, bool inf, bool pon)
+              : time(t), increment(i), movesToGo(mtg), maxTime(mt), maxDepth(md),
+                maxNodes(mn), infinite(inf), ponder(pon) {}
+
+  bool useTimeManagement() const { return !(maxTime | maxDepth | maxNodes | int(infinite)); }
+
+  int time, increment, movesToGo, maxTime, maxDepth, maxNodes;
+  bool infinite, ponder;
+};
 
 extern void init_search();
-extern void init_threads();
-extern void exit_threads();
-extern bool think(const Position &pos, bool infinite, bool ponder, int side_to_move,
-                  int time[], int increment[], int movesToGo, int maxDepth,
-                  int maxNodes, int maxTime, Move searchMoves[]);
-extern int perft(Position &pos, Depth depth);
-extern int64_t nodes_searched();
-
+extern int64_t perft(Position& pos, Depth depth);
+extern bool think(Position& pos, const SearchLimits& limits, Move searchMoves[]);
 
 #endif // !defined(SEARCH_H_INCLUDED)

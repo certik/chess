@@ -20,42 +20,21 @@
 
 /*
   The code in this file is based on the opening book code in PolyGlot
-  by Fabien Letouzey.  PolyGlot is available under the GNU General
+  by Fabien Letouzey. PolyGlot is available under the GNU General
   Public License, and can be downloaded from http://wbec-ridderkerk.nl
 */
 
-
-////
-//// Includes
-////
-
 #include <cassert>
+#include <iostream>
 
 #include "book.h"
-#include "mersenne.h"
 #include "movegen.h"
 
 using namespace std;
 
-////
-//// Global variables
-////
-
-Book OpeningBook;
-
-
-////
-//// Local definitions
-////
-
 namespace {
 
-  /// Book entry size in bytes
-  const int EntrySize = 16;
-
-
-  /// Random numbers from PolyGlot, used to compute book hash keys
-
+  // Random numbers from PolyGlot, used to compute book hash keys
   const uint64_t Random64[781] = {
     0x9D39247E33776D41ULL, 0x2AF7398005AAA5C7ULL, 0x44DB015024623547ULL,
     0x9C15F73E62A76AE2ULL, 0x75834465489C0C89ULL, 0x3290AC3A203001BFULL,
@@ -320,60 +299,66 @@ namespace {
     0xF8D626AAAF278509ULL
   };
 
+  // Indices to the Random64[] array
+  const int PieceIdx     = 0;
+  const int CastleIdx    = 768;
+  const int EnPassantIdx = 772;
+  const int TurnIdx      = 780;
 
-  /// Indices to the Random64[] array
+  // book_key() builds up a PolyGlot hash key out of a position
+  uint64_t book_key(const Position& pos) {
 
-  const int RandomPiece     = 0;
-  const int RandomCastle    = 768;
-  const int RandomEnPassant = 772;
-  const int RandomTurn      = 780;
+    // Piece offset is calculated as (64 * PolyPieceType + square), where
+    // PolyPieceType is: BP = 0, WP = 1, BN = 2, WN = 3 .... BK = 10, WK = 11
+    static const int PieceToPoly[] = { 0, 1, 3, 5, 7, 9, 11, 0, 0, 0, 2, 4, 6, 8, 10 };
 
+    uint64_t result = 0;
+    Bitboard b = pos.occupied_squares();
 
-  /// Prototypes
+    while (b)
+    {
+        Square s = pop_1st_bit(&b);
+        int p = PieceToPoly[int(pos.piece_on(s))];
+        result ^= Random64[PieceIdx + 64 * p + int(s)];
+    }
 
-  uint64_t book_key(const Position& pos);
-  uint64_t book_piece_key(Piece p, Square s);
-  uint64_t book_castle_key(const Position& pos);
-  uint64_t book_ep_key(const Position& pos);
-  uint64_t book_color_key(const Position& pos);
+    if (pos.can_castle_kingside(WHITE))
+        result ^= Random64[CastleIdx + 0];
+
+    if (pos.can_castle_queenside(WHITE))
+        result ^= Random64[CastleIdx + 1];
+
+    if (pos.can_castle_kingside(BLACK))
+        result ^= Random64[CastleIdx + 2];
+
+    if (pos.can_castle_queenside(BLACK))
+        result ^= Random64[CastleIdx + 3];
+
+    if (pos.ep_square() != SQ_NONE)
+        result ^= Random64[EnPassantIdx + square_file(pos.ep_square())];
+
+    if (pos.side_to_move() == WHITE)
+        result ^= Random64[TurnIdx];
+
+    return result;
+  }
+
 }
 
 
-////
-//// Functions
-////
+/// Book c'tor. Make random number generation less deterministic, for book moves
+Book::Book() {
+
+  for (int i = abs(get_system_time() % 10000); i > 0; i--)
+      RKiss.rand<unsigned>();
+}
 
 
-/// Destructor. Be sure file is closed before we leave.
+/// Book destructor. Be sure file is closed before we leave.
 
 Book::~Book() {
 
   close();
-}
-
-
-/// Book::open() opens a book file with a given file name
-
-void Book::open(const string& fName) {
-
-  // Close old file before opening the new
-  close();
-
-  fileName = fName;
-  ifstream::open(fileName.c_str(), ifstream::in | ifstream::binary);
-  if (!is_open())
-      return;
-
-  // Get the book size in number of entries
-  seekg(0, ios::end);
-  bookSize = tellg() / EntrySize;
-  seekg(0, ios::beg);
-
-  if (!good())
-  {
-      cerr << "Failed to open book file " << fileName << endl;
-      Application::exit_with_failure();
-  }
 }
 
 
@@ -382,84 +367,116 @@ void Book::open(const string& fName) {
 
 void Book::close() {
 
-  if (is_open())
-      ifstream::close();
+  if (bookFile.is_open())
+      bookFile.close();
+
+  bookName = "";
 }
 
 
-/// Book::file_name() returns the file name of the currently active book,
-/// or the empty string if no book is open.
+/// Book::open() opens a book file with a given file name
 
-const string Book::file_name() { // Not const to compile on HP-UX 11.X
+void Book::open(const string& fileName) {
 
-  return is_open() ? fileName : "";
+  // Close old file before opening the new
+  close();
+
+  bookFile.open(fileName.c_str(), ifstream::in | ifstream::binary);
+
+  // Silently return when asked to open a non-exsistent file
+  if (!bookFile.is_open())
+      return;
+
+  // Get the book size in number of entries
+  bookFile.seekg(0, ios::end);
+  bookSize = long(bookFile.tellg()) / sizeof(BookEntry);
+
+  if (!bookFile.good())
+  {
+      cerr << "Failed to open book file " << fileName << endl;
+      exit(EXIT_FAILURE);
+  }
+
+  // Set only if successful
+  bookName = fileName;
 }
 
 
 /// Book::get_move() gets a book move for a given position. Returns
-/// MOVE_NONE if no book move is found.
+/// MOVE_NONE if no book move is found. If findBestMove is true then
+/// return always the highest rated book move.
 
 Move Book::get_move(const Position& pos, bool findBestMove) {
 
-  if (!is_open() || bookSize == 0)
+  if (!bookFile.is_open() || bookSize == 0)
       return MOVE_NONE;
 
   BookEntry entry;
   int bookMove = MOVE_NONE;
-  int scoresSum = 0, bestScore = 0;
+  unsigned score, scoresSum = 0, bestScore = 0;
   uint64_t key = book_key(pos);
 
   // Choose a book move among the possible moves for the given position
-  for (int idx = find_key(key); idx < bookSize; idx++)
+  for (int idx = find_entry(key); idx < bookSize; idx++)
   {
-      read_entry(entry, idx);
+      entry = read_entry(idx);
+
       if (entry.key != key)
           break;
 
-      int score = entry.count;
+      score = entry.count;
 
-      assert(score > 0);
-
-      // If findBestMove is true choose highest rated book move
-      if (findBestMove)
+      if (!findBestMove)
       {
-          if (score > bestScore)
-          {
-              bestScore = score;
+          // Choose book move according to its score. If a move has a very
+          // high score it has more probability to be choosen then a one with
+          // lower score. Note that first entry is always chosen.
+          scoresSum += score;
+          if (RKiss.rand<unsigned>() % scoresSum < score)
               bookMove = entry.move;
-          }
-          continue;
       }
-
-      // Choose book move according to its score. If a move has a very
-      // high score it has more probability to be choosen then a one with
-      // lower score. Note that first entry is always chosen.
-      scoresSum += score;
-      if (int(genrand_int32() % scoresSum) < score)
+      else if (score > bestScore)
+      {
+          bestScore = score;
           bookMove = entry.move;
+      }
   }
-  if (!bookMove)
-      return MOVE_NONE;
 
-  MoveStack mlist[256];
-  MoveStack* last = generate_moves(pos, mlist);
+  // A PolyGlot book move is encoded as follows:
+  //
+  // bit  0- 5: destination square (from 0 to 63)
+  // bit  6-11: origin square (from 0 to 63)
+  // bit 12-13-14: promotion piece (from KNIGHT == 1 to QUEEN == 4)
+  //
+  // Castling moves follow "king captures rook" representation. So in case
+  // book move is a promotion we have to convert to our representation, in
+  // all other cases we can directly compare with a Move after having
+  // masked out special Move's flags that are not supported by PolyGlot.
+  int p = (bookMove >> 12) & 7;
+
+  if (p)
+      bookMove = int(make_promotion_move(move_from(Move(bookMove)),
+                 move_to(Move(bookMove)), PieceType(p + 1)));
+
+  // Verify the book move (if any) is legal
+  MoveStack mlist[MAX_MOVES];
+  MoveStack* last = generate<MV_LEGAL>(pos, mlist);
   for (MoveStack* cur = mlist; cur != last; cur++)
-      if ((int(cur->move) & 07777) == bookMove)
+      if ((int(cur->move) & ~(3 << 14)) == bookMove) // Mask out special flags
           return cur->move;
 
   return MOVE_NONE;
 }
 
 
-/// Book::find_key() takes a book key as input, and does a binary search
+/// Book::find_entry() takes a book key as input, and does a binary search
 /// through the book file for the given key. The index to the first book
 /// entry with the same key as the input is returned. When the key is not
 /// found in the book file, bookSize is returned.
 
-int Book::find_key(uint64_t key) {
+int Book::find_entry(uint64_t key) {
 
   int left, right, mid;
-  BookEntry entry;
 
   // Binary search (finds the leftmost entry)
   left = 0;
@@ -473,8 +490,7 @@ int Book::find_key(uint64_t key) {
 
       assert(mid >= left && mid < right);
 
-      read_entry(entry, mid);
-      if (key <= entry.key)
+      if (key <= read_entry(mid).key)
           right = mid;
       else
           left = mid + 1;
@@ -482,114 +498,43 @@ int Book::find_key(uint64_t key) {
 
   assert(left == right);
 
-  read_entry(entry, left);
-  return (entry.key == key)? left : bookSize;
+  return read_entry(left).key == key ? left : bookSize;
 }
 
 
-/// Book::read_entry() takes a BookEntry reference and an integer index as
-/// input, and looks up the opening book entry at the given index in the book
-/// file. The book entry is copied to the first input parameter.
+/// Book::get_number() reads sizeof(T) chars from the file's binary byte
+/// stream and converts them in a number of type T.
+template<typename T>
+void Book::get_number(T& n) {
 
-void Book::read_entry(BookEntry& entry, int idx) {
+  n = 0;
+
+  for (size_t i = 0; i < sizeof(T); i++)
+      n = (n << 8) + (T)bookFile.get();
+}
+
+
+/// Book::read_entry() takes an integer index, and returns the BookEntry
+/// at the given index in the book file.
+
+BookEntry Book::read_entry(int idx) {
 
   assert(idx >= 0 && idx < bookSize);
-  assert(is_open());
+  assert(bookFile.is_open());
 
-  seekg(idx * EntrySize, ios_base::beg);
-  *this >> entry;
-  if (!good())
+  BookEntry e;
+
+  bookFile.seekg(idx * sizeof(BookEntry), ios_base::beg);
+
+  get_number(e.key);
+  get_number(e.move);
+  get_number(e.count);
+  get_number(e.learn);
+
+  if (!bookFile.good())
   {
       cerr << "Failed to read book entry at index " << idx << endl;
-      Application::exit_with_failure();
+      exit(EXIT_FAILURE);
   }
-}
-
-
-/// Book::read_integer() reads size chars from the file stream
-/// and converts them in an integer number.
-
-uint64_t Book::read_integer(int size) {
-
-  char buf[8];
-  read(buf, size);
-
-  // Numbers are stored on disk as a binary byte stream
-  uint64_t n = 0ULL;
-  for (int i = 0; i < size; i++)
-      n = (n << 8) + (unsigned char)buf[i];
-
-  return n;
-}
-
-
-////
-//// Local definitions
-////
-
-namespace {
-
-  uint64_t book_key(const Position& pos) {
-
-    uint64_t result = 0ULL;
-
-    for (Color c = WHITE; c <= BLACK; c++)
-    {
-        Bitboard b = pos.pieces_of_color(c);
-
-        while (b)
-        {
-            Square s = pop_1st_bit(&b);
-            Piece p = pos.piece_on(s);
-
-            assert(piece_is_ok(p));
-            assert(color_of_piece(p) == c);
-
-            result ^= book_piece_key(p, s);
-        }
-    }
-    result ^= book_castle_key(pos);
-    result ^= book_ep_key(pos);
-    result ^= book_color_key(pos);
-    return result;
-  }
-
-
-  uint64_t book_piece_key(Piece p, Square s) {
-
-    /// Convert pieces to the range 0..11
-    static const int PieceTo12[] = { 0, 0, 2, 4, 6, 8, 10, 0, 0, 1, 3, 5, 7, 9, 11 };
-
-    return Random64[RandomPiece + (PieceTo12[int(p)]^1) * 64 + int(s)];
-  }
-
-
-  uint64_t book_castle_key(const Position& pos) {
-
-    uint64_t result = 0ULL;
-
-    if (pos.can_castle_kingside(WHITE))
-        result ^= Random64[RandomCastle+0];
-
-    if (pos.can_castle_queenside(WHITE))
-        result ^= Random64[RandomCastle+1];
-
-    if (pos.can_castle_kingside(BLACK))
-        result ^= Random64[RandomCastle+2];
-
-    if (pos.can_castle_queenside(BLACK))
-        result ^= Random64[RandomCastle+3];
-
-    return result;
-  }
-
-
-  uint64_t book_ep_key(const Position& pos) {
-    return (pos.ep_square() == SQ_NONE ? 0ULL : Random64[RandomEnPassant + square_file(pos.ep_square())]);
-  }
-
-
-  uint64_t book_color_key(const Position& pos) {
-    return (pos.side_to_move() == WHITE ? Random64[RandomTurn] : 0ULL);
-  }
+  return e;
 }

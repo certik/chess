@@ -17,20 +17,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(PAWNS_H_INCLUDED)
 #define PAWNS_H_INCLUDED
 
-////
-//// Includes
-////
+#include "position.h"
+#include "tt.h"
+#include "types.h"
 
-#include "bitboard.h"
-#include "value.h"
-
-////
-//// Types
-////
+const int PawnTableSize = 16384;
 
 /// PawnInfo is a class which contains various information about a pawn
 /// structure. Currently, it only includes a middle game and an end game
@@ -38,91 +32,63 @@
 /// to add further information in the future. A lookup to the pawn hash table
 /// (performed by calling the get_pawn_info method in a PawnInfoTable object)
 /// returns a pointer to a PawnInfo object.
-class Position;
 
 class PawnInfo {
 
   friend class PawnInfoTable;
 
 public:
-  PawnInfo() { clear(); }
-
   Score pawns_value() const;
-  Value kingside_storm_value(Color c) const;
-  Value queenside_storm_value(Color c) const;
   Bitboard pawn_attacks(Color c) const;
-  Bitboard passed_pawns() const;
+  Bitboard passed_pawns(Color c) const;
   int file_is_half_open(Color c, File f) const;
   int has_open_file_to_left(Color c, File f) const;
   int has_open_file_to_right(Color c, File f) const;
-  int get_king_shelter(const Position& pos, Color c, Square ksq);
+
+  template<Color Us>
+  Score king_shelter(const Position& pos, Square ksq);
 
 private:
-  void clear();
-  int updateShelter(const Position& pos, Color c, Square ksq);
+  template<Color Us>
+  Score updateShelter(const Position& pos, Square ksq);
 
   Key key;
-  Bitboard passedPawns;
+  Bitboard passedPawns[2];
   Bitboard pawnAttacks[2];
   Square kingSquares[2];
   Score value;
-  int16_t ksStormValue[2], qsStormValue[2];
-  uint8_t halfOpenFiles[2];
-  uint8_t kingShelters[2];
+  int halfOpenFiles[2];
+  Score kingShelters[2];
 };
 
-/// The PawnInfoTable class represents a pawn hash table.  It is basically
-/// just an array of PawnInfo objects and a few methods for accessing these
-/// objects.  The most important method is get_pawn_info, which looks up a
-/// position in the table and returns a pointer to a PawnInfo object.
 
-class PawnInfoTable {
+/// The PawnInfoTable class represents a pawn hash table. The most important
+/// method is get_pawn_info, which returns a pointer to a PawnInfo object.
 
-  enum SideType { KingSide, QueenSide };
-
+class PawnInfoTable : public SimpleHash<PawnInfo, PawnTableSize> {
 public:
-  PawnInfoTable(unsigned numOfEntries);
-  ~PawnInfoTable();
   PawnInfo* get_pawn_info(const Position& pos) const;
 
 private:
   template<Color Us>
-  Score evaluate_pawns(const Position& pos, Bitboard ourPawns, Bitboard theirPawns, PawnInfo* pi) const;
-
-  template<Color Us, SideType Side>
-  int evaluate_pawn_storm(Square s, Rank r, File f, Bitboard theirPawns) const;
-
-  unsigned size;
-  PawnInfo* entries;
+  static Score evaluate_pawns(const Position& pos, Bitboard ourPawns, Bitboard theirPawns, PawnInfo* pi);
 };
 
 
-////
-//// Inline functions
-////
-
 inline Score PawnInfo::pawns_value() const {
   return value;
-}
-
-inline Bitboard PawnInfo::passed_pawns() const {
-  return passedPawns;
 }
 
 inline Bitboard PawnInfo::pawn_attacks(Color c) const {
   return pawnAttacks[c];
 }
 
-inline Value PawnInfo::kingside_storm_value(Color c) const {
-  return Value(ksStormValue[c]);
-}
-
-inline Value PawnInfo::queenside_storm_value(Color c) const {
-  return Value(qsStormValue[c]);
+inline Bitboard PawnInfo::passed_pawns(Color c) const {
+  return passedPawns[c];
 }
 
 inline int PawnInfo::file_is_half_open(Color c, File f) const {
-  return (halfOpenFiles[c] & (1 << int(f)));
+  return halfOpenFiles[c] & (1 << int(f));
 }
 
 inline int PawnInfo::has_open_file_to_left(Color c, File f) const {
@@ -133,8 +99,9 @@ inline int PawnInfo::has_open_file_to_right(Color c, File f) const {
   return halfOpenFiles[c] & ~((1 << int(f+1)) - 1);
 }
 
-inline int PawnInfo::get_king_shelter(const Position& pos, Color c, Square ksq) {
-  return (kingSquares[c] == ksq ? kingShelters[c] : updateShelter(pos, c, ksq));
+template<Color Us>
+inline Score PawnInfo::king_shelter(const Position& pos, Square ksq) {
+  return kingSquares[Us] == ksq ? kingShelters[Us] : updateShelter<Us>(pos, ksq);
 }
 
 #endif // !defined(PAWNS_H_INCLUDED)

@@ -17,28 +17,30 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(PSQTAB_H_INCLUDED)
 #define PSQTAB_H_INCLUDED
 
-////
-//// Includes
-////
+#include "types.h"
 
-#include "value.h"
-
+namespace {
 
 ////
 //// Constants modified by Joona Kiiski
 ////
 
-static const Value MP = PawnValueMidgame;
-static const Value MK = KnightValueMidgame;
-static const Value MB = BishopValueMidgame;
-static const Value MR = RookValueMidgame;
-static const Value MQ = QueenValueMidgame;
+const Value MP = PawnValueMidgame;
+const Value MK = KnightValueMidgame;
+const Value MB = BishopValueMidgame;
+const Value MR = RookValueMidgame;
+const Value MQ = QueenValueMidgame;
 
-static const int MgPST[][64] = {
+const Value EP = PawnValueEndgame;
+const Value EK = KnightValueEndgame;
+const Value EB = BishopValueEndgame;
+const Value ER = RookValueEndgame;
+const Value EQ = QueenValueEndgame;
+
+const int MgPST[][64] = {
   { },
   {// Pawn
    // A      B      C     D      E      F      G     H
@@ -108,13 +110,7 @@ static const int MgPST[][64] = {
   }
 };
 
-static const Value EP = PawnValueEndgame;
-static const Value EK = KnightValueEndgame;
-static const Value EB = BishopValueEndgame;
-static const Value ER = RookValueEndgame;
-static const Value EQ = QueenValueEndgame;
-
-static const int EgPST[][64] = {
+const int EgPST[][64] = {
   { },
   {// Pawn
    // A     B     C     D     E     F     G     H
@@ -184,5 +180,6 @@ static const int EgPST[][64] = {
   }
 };
 
+} // namespace
 
 #endif // !defined(PSQTAB_H_INCLUDED)

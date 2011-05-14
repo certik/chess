@@ -17,34 +17,23 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(MOVE_H_INCLUDED)
 #define MOVE_H_INCLUDED
 
-////
-//// Includes
-////
-
-#include <iostream>
+#include <string>
 
 #include "misc.h"
-#include "piece.h"
-#include "square.h"
+#include "types.h"
 
+// Maximum number of allowed moves per position
+const int MAX_MOVES = 256;
 
-////
-//// Types
-////
-
-class Position;
-
-/// A move needs 17 bits to be stored
+/// A move needs 16 bits to be stored
 ///
 /// bit  0- 5: destination square (from 0 to 63)
 /// bit  6-11: origin square (from 0 to 63)
-/// bit 12-14: promotion piece type
-/// bit    15: en passant flag
-/// bit    16: castle flag
+/// bit 12-13: promotion piece type - 2 (from KNIGHT-2 to QUEEN-2)
+/// bit 14-15: special move flag: promotion (1), en passant (2), castle (3)
 ///
 /// Special cases are MOVE_NONE and MOVE_NULL. We can sneak these in
 /// because in any normal move destination square is always different
@@ -62,25 +51,24 @@ struct MoveStack {
   int score;
 };
 
-// Note that operator< is set up such that sorting will be in descending order
-inline bool operator<(const MoveStack& f, const MoveStack& s) { return s.score < f.score; }
+inline bool operator<(const MoveStack& f, const MoveStack& s) { return f.score < s.score; }
 
-// An helper insertion sort implementation
-template<typename T>
-inline void insertion_sort(T* firstMove, T* lastMove)
+// An helper insertion sort implementation, works with pointers and iterators
+template<typename T, typename K>
+inline void insertion_sort(K firstMove, K lastMove)
 {
     T value;
-    T *cur, *p, *d;
+    K cur, p, d;
 
     if (firstMove != lastMove)
         for (cur = firstMove + 1; cur != lastMove; cur++)
         {
             p = d = cur;
             value = *p--;
-            if (value < *p)
+            if (*p < value)
             {
                 do *d = *p;
-                while (--d != firstMove && value < *--p);
+                while (--d != firstMove && *--p < value);
                 *d = value;
             }
         }
@@ -115,7 +103,7 @@ inline void sort_moves(T* firstMove, T* lastMove, T** lastPositive)
     } while (p != d);
 
     // Sort just positive scored moves, remaining only when we get there
-    insertion_sort<T>(firstMove, p);
+    insertion_sort<T, T*>(firstMove, p);
     *lastPositive = p;
 }
 
@@ -130,7 +118,7 @@ inline T pick_best(T* curMove, T* lastMove)
     bestMove = *curMove;
     while (++curMove != lastMove)
     {
-        if (*curMove < bestMove)
+        if (bestMove < *curMove)
         {
             tmp = *curMove;
             *curMove = bestMove;
@@ -140,9 +128,6 @@ inline T pick_best(T* curMove, T* lastMove)
     return bestMove;
 }
 
-////
-//// Inline functions
-////
 
 inline Square move_from(Move m) {
   return Square((int(m) >> 6) & 0x3F);
@@ -152,24 +137,20 @@ inline Square move_to(Move m) {
   return Square(m & 0x3F);
 }
 
-inline PieceType move_promotion_piece(Move m) {
-  return PieceType((int(m) >> 12) & 7);
+inline bool move_is_special(Move m) {
+  return m & (3 << 14);
 }
 
-inline int move_is_special(Move m) {
-  return m & (0x1F << 12);
-}
-
-inline int move_is_promotion(Move m) {
-  return m & (7 << 12);
+inline bool move_is_promotion(Move m) {
+  return (m & (3 << 14)) == (1 << 14);
 }
 
 inline int move_is_ep(Move m) {
-  return m & (1 << 15);
+  return (m & (3 << 14)) == (2 << 14);
 }
 
 inline int move_is_castle(Move m) {
-  return m & (1 << 16);
+  return (m & (3 << 14)) == (3 << 14);
 }
 
 inline bool move_is_short_castle(Move m) {
@@ -180,31 +161,35 @@ inline bool move_is_long_castle(Move m) {
   return move_is_castle(m) && (move_to(m) < move_from(m));
 }
 
-inline Move make_promotion_move(Square from, Square to, PieceType promotion) {
-  return Move(int(to) | (int(from) << 6) | (int(promotion) << 12));
+inline PieceType move_promotion_piece(Move m) {
+  return move_is_promotion(m) ? PieceType(((int(m) >> 12) & 3) + 2) : PIECE_TYPE_NONE;
 }
 
 inline Move make_move(Square from, Square to) {
   return Move(int(to) | (int(from) << 6));
 }
 
-inline Move make_castle_move(Square from, Square to) {
-  return Move(int(to) | (int(from) << 6) | (1 << 16));
+inline Move make_promotion_move(Square from, Square to, PieceType promotion) {
+  return Move(int(to) | (int(from) << 6) | ((int(promotion) - 2) << 12) | (1 << 14));
 }
 
 inline Move make_ep_move(Square from, Square to) {
-  return Move(int(to) | (int(from) << 6) | (1 << 15));
+  return Move(int(to) | (int(from) << 6) | (2 << 14));
 }
 
+inline Move make_castle_move(Square from, Square to) {
+  return Move(int(to) | (int(from) << 6) | (3 << 14));
+}
 
-////
-//// Prototypes
-////
+inline bool move_is_ok(Move m) {
+  return move_from(m) != move_to(m); // Catches also MOVE_NONE
+}
 
-extern std::ostream& operator<<(std::ostream &os, Move m);
-extern Move move_from_string(const Position &pos, const std::string &str);
-extern const std::string move_to_string(Move m);
-extern bool move_is_ok(Move m);
+class Position;
 
+extern const std::string move_to_uci(Move m, bool chess960);
+extern Move move_from_uci(const Position& pos, const std::string& str);
+extern const std::string move_to_san(Position& pos, Move m);
+extern const std::string pretty_pv(Position& pos, int depth, Value score, int time, Move pv[]);
 
 #endif // !defined(MOVE_H_INCLUDED)

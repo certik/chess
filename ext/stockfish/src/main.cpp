@@ -20,18 +20,16 @@
 // To profile with callgrind uncomment following line
 //#define USE_CALLGRIND
 
-
-////
-//// Includes
-////
-
+#include <cstdio>
 #include <iostream>
 #include <string>
 
-#include "benchmark.h"
-#include "bitcount.h"
-#include "misc.h"
-#include "uci.h"
+#include "bitboard.h"
+#include "evaluate.h"
+#include "position.h"
+#include "thread.h"
+#include "search.h"
+#include "ucioption.h"
 
 #ifdef USE_CALLGRIND
 #include <valgrind/callgrind.h>
@@ -39,53 +37,51 @@
 
 using namespace std;
 
+extern bool execute_uci_command(const string& cmd);
+extern void benchmark(int argc, char* argv[]);
+extern void init_kpk_bitbase();
 
-////
-//// Functions
-////
+int main(int argc, char* argv[]) {
 
-int main(int argc, char *argv[]) {
-
-  // Disable IO buffering
+  // Disable IO buffering for C and C++ standard libraries
+  setvbuf(stdin, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
   cout.rdbuf()->pubsetbuf(NULL, 0);
   cin.rdbuf()->pubsetbuf(NULL, 0);
 
-  // Initialization through global resources manager
-  Application::initialize();
+  // Startup initializations
+  init_bitboards();
+  Position::init_zobrist();
+  Position::init_piece_square_tables();
+  init_kpk_bitbase();
+  init_search();
+  Threads.init();
 
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif
 
-  if (argc <= 1)
+  if (argc < 2)
   {
       // Print copyright notice
-      cout << engine_name()
-           << " by Tord Romstad, Marco Costalba, Joona Kiiski" << endl;
+      cout << engine_name() << " by " << engine_authors() << endl;
 
       if (CpuHasPOPCNT)
           cout << "Good! CPU has hardware POPCNT." << endl;
 
-      // Enter UCI mode
-      uci_main_loop();
+      // Wait for a command from the user, and passes this command to
+      // execute_uci_command() and also intercepts EOF from stdin to
+      // ensure that we exit gracefully if the GUI dies unexpectedly.
+      string cmd;
+      while (getline(cin, cmd) && execute_uci_command(cmd)) {}
   }
-  else // Process command line arguments
-  {
-      if (string(argv[1]) != "bench" || argc < 4 || argc > 8)
-          cout << "Usage: stockfish bench <hash size> <threads> "
-               << "[time = 60s] [fen positions file = default] "
-               << "[time, depth, perft or node limited = time] "
-               << "[timing file name = none]" << endl;
-      else
-      {
-          string time = argc > 4 ? argv[4] : "60";
-          string fen  = argc > 5 ? argv[5] : "default";
-          string lim  = argc > 6 ? argv[6] : "time";
-          string tim  = argc > 7 ? argv[7] : "";
-          benchmark(string(argv[2]) + " " + string(argv[3]) + " " + time + " " + fen + " " + lim + " " + tim);
-      }
-  }
+  else if (string(argv[1]) == "bench" && argc < 8)
+      benchmark(argc, argv);
+  else
+      cout << "Usage: stockfish bench [hash size = 128] [threads = 1] "
+           << "[limit = 12] [fen positions file = default] "
+           << "[limited by depth, time, nodes or perft = depth]" << endl;
 
-  Application::free_resources();
+  Threads.exit();
   return 0;
 }

@@ -17,28 +17,69 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(UCIOPTION_H_INCLUDED)
 #define UCIOPTION_H_INCLUDED
 
-////
-//// Includes
-////
-
+#include <cassert>
+#include <cstdlib>
+#include <map>
 #include <string>
 
-////
-//// Prototypes
-////
+class UCIOption {
+public:
+  UCIOption() {} // To be used in a std::map
+  UCIOption(const char* defaultValue);
+  UCIOption(bool defaultValue, std::string type = "check");
+  UCIOption(int defaultValue, int minValue, int maxValue);
 
-extern void init_uci_options();
-extern void print_uci_options();
-extern bool get_option_value_bool(const std::string& optionName);
-extern int get_option_value_int(const std::string& optionName);
-extern std::string get_option_value_string(const std::string& optionName);
-extern bool button_was_pressed(const std::string& buttonName);
-extern void set_option_value(const std::string& optionName,const std::string& newValue);
-extern void push_button(const std::string& buttonName);
+  void set_value(const std::string& v);
+  template<typename T> T value() const;
 
+private:
+  friend class OptionsMap;
+
+  std::string defaultValue, currentValue, type;
+  int minValue, maxValue;
+  size_t idx;
+};
+
+
+/// Custom comparator because UCI options should not be case sensitive
+struct CaseInsensitiveLess {
+  bool operator() (const std::string&, const std::string&) const;
+};
+
+
+/// Our options container is actually a map with a customized c'tor
+class OptionsMap : public std::map<std::string, UCIOption, CaseInsensitiveLess> {
+public:
+  OptionsMap();
+  std::string print_all() const;
+};
+
+extern OptionsMap Options;
+
+
+/// Option::value() definition and specializations
+template<typename T>
+T UCIOption::value() const {
+
+  assert(type == "spin");
+  return T(atoi(currentValue.c_str()));
+}
+
+template<>
+inline std::string UCIOption::value<std::string>() const {
+
+  assert(type == "string");
+  return currentValue;
+}
+
+template<>
+inline bool UCIOption::value<bool>() const {
+
+  assert(type == "check" || type == "button");
+  return currentValue == "true";
+}
 
 #endif // !defined(UCIOPTION_H_INCLUDED)

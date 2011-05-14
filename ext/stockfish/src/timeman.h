@@ -17,22 +17,23 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if !defined(TIMEMAN_H_INCLUDED)
+#define TIMEMAN_H_INCLUDED
 
-#if !defined(BITBASE_H_INCLUDED)
-#define BITBASE_H_INCLUDED
+struct SearchLimits;
 
-////
-//// Includes
-////
+class TimeManager {
+public:
 
-#include "types.h"
+  void init(const SearchLimits& limits, int currentPly);
+  void pv_instability(int curChanges, int prevChanges);
+  int available_time() const { return optimumSearchTime + unstablePVExtraTime; }
+  int maximum_time() const { return maximumSearchTime; }
 
+private:
+  int optimumSearchTime;
+  int maximumSearchTime;
+  int unstablePVExtraTime;
+};
 
-////
-//// Prototypes
-////
-
-extern void generate_kpk_bitbase(uint8_t bitbase[]);
-
-
-#endif // !defined(BITBASE_H_INCLUDED)
+#endif // !defined(TIMEMAN_H_INCLUDED)

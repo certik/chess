@@ -2,8 +2,6 @@
 # Copyright (C) 2004-2008 Tord Romstad (Glaurung author)
 # Copyright (C) 2008-2010 Marco Costalba, Joona Kiiski, Tord Romstad
 #
-# This file is part of Stockfish.
-#
 # Stockfish is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -33,11 +31,9 @@ BINDIR = $(PREFIX)/bin
 PGOBENCH = ./$(EXE) bench 32 1 10 default depth
 
 ### Object files
-OBJS = application.o bitboard.o pawns.o material.o endgame.o evaluate.o main.o \
-	misc.o move.o movegen.o history.o movepick.o search.o piece.o \
-	position.o direction.o tt.o value.o uci.o ucioption.o \
-	mersenne.o book.o bitbase.o san.o benchmark.o
-
+OBJS = benchmark.o bitbase.o bitboard.o book.o endgame.o evaluate.o main.o \
+	material.o misc.o move.o movegen.o movepick.o pawns.o position.o \
+	search.o thread.o timeman.o tt.o uci.o ucioption.o
 
 ### ==========================================================================
 ### Section 2. High-level Configuration
@@ -200,6 +196,15 @@ ifeq ($(COMP),)
 	COMP=gcc
 endif
 
+ifeq ($(COMP),mingw)
+	comp=mingw
+	CXX=g++
+	profile_prepare = gcc-profile-prepare
+	profile_make = gcc-profile-make
+	profile_use = gcc-profile-use
+	profile_clean = gcc-profile-clean
+endif
+
 ifeq ($(COMP),gcc)
 	comp=gcc
 	CXX=g++
@@ -219,10 +224,18 @@ ifeq ($(COMP),icc)
 endif
 
 ### 3.2 General compiler settings
-CXXFLAGS += -g -Wall -fno-exceptions -fno-rtti $(EXTRACXXFLAGS)
+CXXFLAGS = -g -Wall -Wcast-qual -fno-exceptions -fno-rtti $(EXTRACXXFLAGS)
+
+ifeq ($(comp),gcc)
+	CXXFLAGS += -ansi -pedantic -Wno-long-long -Wextra -Wshadow
+endif
+
+ifeq ($(comp),mingw)
+	CXXFLAGS += -Wextra -Wshadow
+endif
 
 ifeq ($(comp),icc)
-	CXXFLAGS += -wd383,869,981,10187,10188,11505,11503
+	CXXFLAGS += -wd383,981,1418,1419,10187,10188,11505,11503 -Wcheck -Wabi -Wdeprecated -strict-ansi
 endif
 
 ifeq ($(os),osx)
@@ -230,7 +243,7 @@ ifeq ($(os),osx)
 endif
 
 ### 3.3 General linker settings
-LDFLAGS += -lpthread $(EXTRALDFLAGS)
+LDFLAGS = -lpthread $(EXTRALDFLAGS)
 
 ifeq ($(os),osx)
 	LDFLAGS += -arch $(arch)
@@ -257,11 +270,15 @@ ifeq ($(optimize),yes)
 		endif
 	endif
 
-	ifeq ($(comp),icc)
-		CXXFLAGS += -fast
+	ifeq ($(comp),mingw)
+		CXXFLAGS += -O3
+	endif
 
+	ifeq ($(comp),icc)
 		ifeq ($(os),osx)
-			CXXFLAGS += -mdynamic-no-pic
+			CXXFLAGS += -fast -mdynamic-no-pic
+		else
+			CXXFLAGS += -O3
 		endif
 	endif
 endif
@@ -336,6 +353,7 @@ help:
 	@echo ""
 	@echo "gcc                  > Gnu compiler (default)"
 	@echo "icc                  > Intel compiler"
+	@echo "mingw                > Gnu compiler with MinGW under Windows"
 	@echo ""
 	@echo "Non-standard targets:"
 	@echo ""
@@ -408,7 +426,7 @@ install:
 	-strip $(BINDIR)/$(EXE)
 
 clean:
-	$(RM) $(EXE) *.o .depend *~ core bench.txt
+	$(RM) $(EXE) $(EXE).exe *.o .depend *~ core bench.txt *.gcda
 
 testrun:
 	@$(PGOBENCH)
@@ -449,7 +467,7 @@ config-sanity:
 	@test "$(prefetch)" = "yes" || test "$(prefetch)" = "no"
 	@test "$(bsfq)" = "yes" || test "$(bsfq)" = "no"
 	@test "$(popcnt)" = "yes" || test "$(popcnt)" = "no"
-	@test "$(comp)" = "gcc" || test "$(comp)" = "icc"
+	@test "$(comp)" = "gcc" || test "$(comp)" = "icc" || test "$(comp)" = "mingw"
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
@@ -500,7 +518,7 @@ icc-profile-clean:
 
 hpux:
 	$(MAKE) \
-	CXX='/opt/aCC/bin/aCC -AA +hpxstd98 -DBIGENDIAN -mt +O3 -DNDEBUG' \
+	CXX='/opt/aCC/bin/aCC -AA +hpxstd98 -DBIGENDIAN -mt +O3 -DNDEBUG -DNO_PREFETCH' \
 	CXXFLAGS="" \
 	LDFLAGS="" \
 	all

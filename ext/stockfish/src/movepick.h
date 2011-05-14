@@ -17,46 +17,37 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined MOVEPICK_H_INCLUDED
 #define MOVEPICK_H_INCLUDED
 
-////
-//// Includes
-////
-
-#include "depth.h"
 #include "history.h"
+#include "move.h"
 #include "position.h"
-
-
-////
-//// Types
-////
+#include "types.h"
 
 struct SearchStack;
 
 /// MovePicker is a class which is used to pick one legal move at a time from
 /// the current position. It is initialized with a Position object and a few
 /// moves we have reason to believe are good. The most important method is
-/// MovePicker::pick_next_move(), which returns a new legal move each time it
+/// MovePicker::get_next_move(), which returns a new legal move each time it
 /// is called, until there are no legal moves left, when MOVE_NONE is returned.
 /// In order to improve the efficiency of the alpha beta algorithm, MovePicker
-/// attempts to return the moves which are most likely to be strongest first.
+/// attempts to return the moves which are most likely to get a cut-off first.
 
 class MovePicker {
 
-  MovePicker& operator=(const MovePicker&); // silence a warning under MSVC
+  MovePicker& operator=(const MovePicker&); // Silence a warning under MSVC
 
 public:
-  MovePicker(const Position& p, Move ttm, Depth d, const History& h, SearchStack* ss = NULL, Value beta = -VALUE_INFINITE);
+  MovePicker(const Position&, Move, Depth, const History&, SearchStack*, Value);
+  MovePicker(const Position&, Move, Depth, const History&);
   Move get_next_move();
-  int number_of_evasions() const;
 
 private:
   void score_captures();
   void score_noncaptures();
-  void score_evasions_or_checks();
+  void score_evasions();
   void go_next_phase();
 
   const Position& pos;
@@ -65,23 +56,8 @@ private:
   MoveStack ttMoves[2], killers[2];
   int badCaptureThreshold, phase;
   const uint8_t* phasePtr;
-  MoveStack *curMove, *lastMove, *lastGoodNonCapture, *lastBadCapture;
-  MoveStack moves[256], badCaptures[64];
+  MoveStack *curMove, *lastMove, *lastGoodNonCapture, *badCaptures;
+  MoveStack moves[MAX_MOVES];
 };
-
-
-////
-//// Inline functions
-////
-
-/// MovePicker::number_of_evasions() simply returns the number of moves in
-/// evasions phase. It is intended to be used in positions where the side to
-/// move is in check, for detecting checkmates or situations where there is
-/// only a single reply to check.
-/// WARNING: It works as long as PH_EVASIONS is the _only_ phase for evasions.
-
-inline int MovePicker::number_of_evasions() const {
-  return int(lastMove - moves);
-}
 
 #endif // !defined(MOVEPICK_H_INCLUDED)
