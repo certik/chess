@@ -3,12 +3,13 @@ import pexpect
 
 class UCIEngine(object):
 
-    def __init__(self, executable="stockfish", debug=True):
+    def __init__(self, executable="stockfish", debug=True, multi_pv=1):
         self._p = pexpect.spawn("stockfish")
         if debug:
             self._p.logfile = sys.stdout
         self._p.sendline("uci")
         self._p.sendline("setoption name Hash value 1024")
+        self._p.sendline("setoption name MultiPV value %d" % multi_pv)
         self._p.expect("uciok")
 
     def new_game(self):
