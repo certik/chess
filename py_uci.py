@@ -8,7 +8,8 @@ class UCIEngine(object):
         if debug:
             self._p.logfile = sys.stdout
         self._p.sendline("uci")
-        self._p.sendline("setoption name Hash value 1024")
+        # Set the memory usage (roughly 3GB)
+        self._p.sendline("setoption name Hash value 3072")
         self._p.sendline("setoption name MultiPV value %d" % multi_pv)
         self._p.expect("uciok")
 
