@@ -1,0 +1,6 @@
+uci
+isready
+position startpos
+setoption name Threads value 16
+setoption name Hash value 8192
+go infinite
