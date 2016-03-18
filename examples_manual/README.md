@@ -122,3 +122,5 @@ info depth 46 seldepth 90 multipv 1 score cp 4327 nodes 155102067905 nps 5228432
 The converged prefactor is:
 
 f5f6 b5b6 d7d6 b6b8 f2f4
+
+Probably the next best move is: b8c8, or f8e8.
