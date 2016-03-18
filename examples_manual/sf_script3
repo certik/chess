@@ -1,0 +1,7 @@
+uci
+isready
+position fen "5k2/3R1p2/7p/1rp1PK2/7P/p7/P4P2/8 w - - 0 53" moves f5f6 b5b6 d7d6 b6b8 f2f4
+setoption name Threads value 16
+setoption name Hash value 8192
+setoption name MultiPv value 4
+go infinite

@@ -1,1 +1,1 @@
-cat sf_script2 - | stockfish
+cat sf_script3 - | stockfish
