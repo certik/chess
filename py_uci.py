@@ -4,7 +4,7 @@ import pexpect
 class UCIEngine(object):
 
     def __init__(self, executable="stockfish", debug=True, multi_pv=1):
-        self._p = pexpect.spawn("stockfish")
+        self._p = pexpect.spawn("stockfish", encoding="us-ascii")
         if debug:
             self._p.logfile = sys.stdout
         self._p.sendline("uci")
@@ -44,16 +44,24 @@ class UCIEngine(object):
             self._p.sendline("go infinite")
         else:
             self._p.sendline("go movetime %d" % movetime)
-        self._p.expect("bestmove (\S+) ponder (\S+)", timeout=None)
-        best_move, ponder = self._p.match.groups()
+        self._p.expect(r"bestmove (\S+)( ponder (\S+))?", timeout=None)
+        g = self._p.match.groups()
+        if len(g) == 0:
+            raise Exception("Expected at least one match group.")
+        elif len(g) >= 1:
+            best_move = g[0]
+            if len(g) > 2:
+                ponder = g[2]
+            else:
+                ponder = None
         return best_move, ponder
 
 def get_move_from_user(default="e2e4"):
-    print "Your move (%s):" % default
-    move = raw_input()
+    print("Your move (%s):" % default)
+    move = input()
     if move == "":
         move = default
-    print "Using the move:", move
+    print("Using the move:", move)
     return move
 
 if __name__ == "__main__":
@@ -68,9 +76,9 @@ if __name__ == "__main__":
             move = ponder
         else:
             move = get_move_from_user(ponder)
-        print "you:", move
+        print("you:", move)
         moves.append(move)
         e.set_position(moves=moves)
         best_move, ponder = e.find_best_move()
         moves.append(best_move)
-        print "computer:", best_move
+        print("computer:", best_move)

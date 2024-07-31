@@ -41,4 +41,4 @@ e = UCIEngine(multi_pv=10)
 e.new_game()
 e.set_position(moves=b.get_moves())
 e.find_best_move(30000)
-print b
+print(b)
