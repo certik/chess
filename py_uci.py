@@ -49,11 +49,11 @@ class UCIEngine(object):
         return best_move, ponder
 
 def get_move_from_user(default="e2e4"):
-    print "Your move (%s):" % default
+    print("Your move (%s):" % default)
     move = raw_input()
     if move == "":
         move = default
-    print "Using the move:", move
+    print("Using the move:", move)
     return move
 
 if __name__ == "__main__":
@@ -68,9 +68,9 @@ if __name__ == "__main__":
             move = ponder
         else:
             move = get_move_from_user(ponder)
-        print "you:", move
+        print("you:", move)
         moves.append(move)
         e.set_position(moves=moves)
         best_move, ponder = e.find_best_move()
         moves.append(best_move)
-        print "computer:", best_move
+        print("computer:", best_move)
