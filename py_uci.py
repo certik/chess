@@ -44,7 +44,7 @@ class UCIEngine(object):
             self._p.sendline("go infinite")
         else:
             self._p.sendline("go movetime %d" % movetime)
-        self._p.expect("bestmove (\S+) ponder (\S+)", timeout=None)
+        self._p.expect(r"bestmove (\S+) ponder (\S+)", timeout=None)
         best_move, ponder = self._p.match.groups()
         return best_move, ponder
 
