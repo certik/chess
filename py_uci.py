@@ -4,7 +4,7 @@ import pexpect
 class UCIEngine(object):
 
     def __init__(self, executable="stockfish", debug=True, multi_pv=1):
-        self._p = pexpect.spawn("stockfish")
+        self._p = pexpect.spawn("stockfish", encoding="us-ascii")
         if debug:
             self._p.logfile = sys.stdout
         self._p.sendline("uci")
