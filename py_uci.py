@@ -44,8 +44,16 @@ class UCIEngine(object):
             self._p.sendline("go infinite")
         else:
             self._p.sendline("go movetime %d" % movetime)
-        self._p.expect(r"bestmove (\S+) ponder (\S+)", timeout=None)
-        best_move, ponder = self._p.match.groups()
+        self._p.expect(r"bestmove (\S+)( ponder (\S+))?", timeout=None)
+        g = self._p.match.groups()
+        if len(g) == 0:
+            raise Exception("Expected at least one match group.")
+        elif len(g) >= 1:
+            best_move = g[0]
+            if len(g) > 2:
+                ponder = g[2]
+            else:
+                ponder = None
         return best_move, ponder
 
 def get_move_from_user(default="e2e4"):
