@@ -50,7 +50,7 @@ class UCIEngine(object):
 
 def get_move_from_user(default="e2e4"):
     print("Your move (%s):" % default)
-    move = raw_input()
+    move = input()
     if move == "":
         move = default
     print("Using the move:", move)
